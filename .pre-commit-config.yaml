@@ -1,0 +1,42 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+
+-   repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+    # uses the isort tool to automatically sort and organize Python import statements in the code.
+      - id: isort
+        name: isort(python)
+
+-   repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+    # uses the flake8 tool, which is a linting tool for Python.
+    # It checks your code for various issues, including syntax errors, style violations, and potential bugs.
+      - id: flake8
+        exclude: Q000, Q003
+        additional_dependencies:
+        # Additional checks for common programming mistakes.
+        # E.g: use of == or != with True or False or None. It encourages to use is or is not.
+          - flake8-bugbear
+        # Checks for the use of Python built-in functions
+        # E.g: Use of map, filter, and lambda instead of list comprehensions,
+        #      Use of open without a with statement:
+          - flake8-builtins
+        # Checks for violations of PEP 263 (Source Code Encoding).
+          - flake8-coding
+        # Enforces a consistent order of import statements.
+          - flake8-import-order
+        # Polyfill for supporting plugins requiring a newer flake8 version.
+          - flake8-polyfill
+        # Enforces a consistent use of single or double quotes like single quotes for single line and
+        # double for multiple lines
+          - flake8-quotes
