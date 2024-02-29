@@ -7,6 +7,10 @@ install:
 install-pre-commit:
 	poetry run pre-commit uninstall; poetry run pre-commit install
 
+.PHONY: clear-cache
+clear-cache:
+	poetry run pre-commit clean
+
 .PHONY: check-all-files
 check-all-files:
 	poetry run pre-commit run --all-files
