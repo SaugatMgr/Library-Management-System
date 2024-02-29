@@ -1,5 +1,6 @@
 # Self Setups
 local.py
+precommitdetail.txt
 
 # Django
 *.log
