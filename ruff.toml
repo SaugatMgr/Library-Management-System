@@ -1,0 +1,13 @@
+# Enable Pyflakes and pycodestyle rules.
+select = ["E", "F"]
+
+# Never enforce `E501` (line length violations).
+ignore = ["E501"]
+
+# Never try to fix `F401` (unused imports).
+fix = true
+unfixable = ["F401"]
+
+[per-file-ignores]
+"core/LibraryMgmtSys/development.py" = ["F403"]
+"core/LibraryMgmtSys/production.py" = ["F403"]
