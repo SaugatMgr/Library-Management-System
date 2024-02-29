@@ -5,7 +5,7 @@ install:
 # for consistency we uninstall and install hooks in pre-commit
 .PHONY: install-pre-commit
 install-pre-commit:
-	poetry run pre-commit uninstall; poetry run pre-commit install
+	poetry run pre-commit uninstall && poetry run pre-commit install
 
 .PHONY: clear-cache
 clear-cache:
