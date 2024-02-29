@@ -17,7 +17,7 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
-        exclude: Q000, Q003, "^migrations/"
+        exclude: Q000, Q003, ^.*[/\\]migrations[/\\].*
         additional_dependencies: [
           "flake8-bugbear",
           "flake8-coding",
