@@ -20,7 +20,6 @@ repos:
         exclude: Q000, Q003
         additional_dependencies: [
           "flake8-bugbear",
-          "flake8-builtins",
           "flake8-coding",
           "flake8-import-order",
           "flake8-polyfill"]
