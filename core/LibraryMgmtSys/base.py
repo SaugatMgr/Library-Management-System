@@ -18,7 +18,7 @@ DJANGO_APPS = [
 ]
 
 CUSTOM_APPS = ["apps.users"]
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = ["rest_framework", "rest_framework_simplejwt"]
 INSTALLED_APPS = DJANGO_APPS + CUSTOM_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
