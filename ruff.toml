@@ -1,3 +1,5 @@
+exclude = ["ruff.toml"]
+[lint]
 # Enable Pyflakes and pycodestyle rules.
 select = ["E", "F"]
 
@@ -5,9 +7,8 @@ select = ["E", "F"]
 ignore = ["E501"]
 
 # Never try to fix `F401` (unused imports).
-fix = true
 unfixable = ["F401"]
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "core/LibraryMgmtSys/development.py" = ["F403"]
 "core/LibraryMgmtSys/production.py" = ["F403"]
