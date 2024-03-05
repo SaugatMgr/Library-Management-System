@@ -1,3 +1,4 @@
+[lint]
 # Enable Pyflakes and pycodestyle rules.
 select = ["E", "F"]
 
@@ -8,6 +9,6 @@ ignore = ["E501"]
 fix = true
 unfixable = ["F401"]
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "core/LibraryMgmtSys/development.py" = ["F403"]
 "core/LibraryMgmtSys/production.py" = ["F403"]
