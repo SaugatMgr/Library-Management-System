@@ -1,13 +1,13 @@
 from rest_framework.viewsets import ModelViewSet
 
 from apps.users.api.v1.repository import UserRepository
-from apps.users.api.v1.serializers.get import UserListSerializer
+from apps.users.api.v1.serializers.get import UserDetailSerializer, UserListSerializer
 
 
 class UserViewset(ModelViewSet):
     serializer_action = {
         "list": UserListSerializer,
-        "retrieve": UserListSerializer,
+        "retrieve": UserDetailSerializer,
         "create": UserListSerializer,
         "update": UserListSerializer,
     }
