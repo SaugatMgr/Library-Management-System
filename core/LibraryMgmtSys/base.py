@@ -4,8 +4,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-AUTH_USER_MODEL = "users.CustomUser"
-
 # Application definition
 
 DJANGO_APPS = [
@@ -18,9 +16,13 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-CUSTOM_APPS = ["apps.users"]
+CUSTOM_APPS = [
+    "apps.users",
+]
 THIRD_PARTY_APPS = ["rest_framework", "rest_framework_simplejwt"]
 INSTALLED_APPS = DJANGO_APPS + CUSTOM_APPS + THIRD_PARTY_APPS
+
+AUTH_USER_MODEL = "users.CustomUser"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -30,6 +32,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "utils.threads.ThreadMiddleware",
 ]
 
 ROOT_URLCONF = "core.LibraryMgmtSys.urls"
@@ -91,7 +94,7 @@ SIMPLE_JWT = {
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Asia/Kathmandu"
 
 USE_I18N = True
 
@@ -103,11 +106,17 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LIBRARY_CARD_NO_PREFIX = "LMS-"
 
 JAZZMIN_SETTINGS = {
     "site_title": "Library Admin",

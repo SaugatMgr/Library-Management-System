@@ -5,7 +5,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.users.managers import CustomUserManager
-from utils.constants import UserGroupChoices
+from utils.constants import GenderChoices, UserGroupChoices
+from utils.models import CommonInfo
 
 
 class CustomUserGroup(models.Model):
@@ -60,3 +61,40 @@ class CustomUser(AbstractUser):
             if self.middle_name
             else f"{self.first_name} {self.last_name}"
         )
+
+    def __str__(self) -> str:
+        return self.email
+
+
+class UserProfile(CommonInfo):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(
+        upload_to="user/profile/",
+        blank=True,
+        null=True,
+        verbose_name=_("Profile Picture"),
+    )
+    library_card_number = models.CharField(
+        max_length=50, unique=True, verbose_name=_("Library Card No.")
+    )
+    address = models.CharField(max_length=255, blank=True, verbose_name=_("Address"))
+    phone_number = models.CharField(
+        max_length=10, unique=True, blank=True, verbose_name=_("Phone No.")
+    )
+    date_of_birth = models.DateField(
+        blank=True, null=True, verbose_name=_("Date of Birth")
+    )
+    gender = models.CharField(
+        max_length=1,
+        choices=GenderChoices.choices,
+        blank=True,
+        verbose_name=_("Gender"),
+    )
+    bio = models.TextField(blank=True, verbose_name=_("Bio"))
+
+    def __str__(self) -> str:
+        return f"{self.user.get_full_name} Profile"
+
+    class Meta:
+        verbose_name = "User Profile"
+        verbose_name_plural = "User Profile"

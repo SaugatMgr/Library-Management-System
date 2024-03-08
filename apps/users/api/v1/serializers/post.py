@@ -1,3 +1,4 @@
+import re
 from typing import Any, Dict
 
 from rest_framework import serializers
@@ -7,7 +8,7 @@ from rest_framework_simplejwt.serializers import (
 )
 from rest_framework_simplejwt.settings import api_settings
 
-from apps.users.models import CustomUser
+from apps.users.models import CustomUser, UserProfile
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -35,3 +36,24 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class CustomTokenVerifySerializer(TokenVerifySerializer):
     token = serializers.CharField(max_length=500, required=True)
+
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = (
+            "user",
+            "address",
+            "phone_number",
+            "date_of_birth",
+            "gender",
+            "profile_picture",
+            "bio",
+        )
+
+    def validate_phone_number(self, value):
+        if not re.match(r"^\d{10}$", value):
+            raise serializers.ValidationError(
+                {"error": "Phone number must be 10 digits."}
+            )
+        return value

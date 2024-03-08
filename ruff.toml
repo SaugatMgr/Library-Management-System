@@ -1,4 +1,4 @@
-exclude = ["ruff.toml"]
+exclude = ["ruff.toml", "migrations/"]
 [lint]
 # Enable Pyflakes and pycodestyle rules.
 select = ["E", "F"]
@@ -12,3 +12,4 @@ unfixable = ["F401"]
 [lint.per-file-ignores]
 "core/LibraryMgmtSys/development.py" = ["F403"]
 "core/LibraryMgmtSys/production.py" = ["F403"]
+"apps/users/apps.py" = ["F401"]
