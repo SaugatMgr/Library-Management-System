@@ -9,7 +9,7 @@ from apps.users.api.v1.serializers.get import (
     UserProfileListSerializer,
 )
 from apps.users.api.v1.serializers.post import UserProfileUpdateSerializer
-from apps.users.permissions import AdminPermission, ProfileOwnerOrAdminPermission
+from utils.permissions import AdminPermission, ProfileOwnerOrAdminPermission
 
 
 class UserViewset(ModelViewSet):
