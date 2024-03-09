@@ -25,7 +25,7 @@ class LibraryAdminPermission(permissions.BasePermission):
 
 
 class ProfileOwnerOrAdminPermission(permissions.BasePermission):
-    message = "Only this profile user or Admin can access"
+    message = "Only the profile user or Admin can access"
 
     def has_permission(self, request, view):
         user = request.user
