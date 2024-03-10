@@ -118,6 +118,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LIBRARY_CARD_NO_PREFIX = "LMS-"
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
 JAZZMIN_SETTINGS = {
     "site_title": "Library Admin",
     "site_header": "Library",
