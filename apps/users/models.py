@@ -1,4 +1,5 @@
 import uuid
+import pyotp
 
 from django.contrib.auth.models import AbstractUser, Permission
 from django.db import models
@@ -79,7 +80,7 @@ class UserProfile(CommonInfo):
     )
     address = models.CharField(max_length=255, blank=True, verbose_name=_("Address"))
     phone_number = models.CharField(
-        max_length=10, unique=True, blank=True, verbose_name=_("Phone No.")
+        max_length=10, unique=True, blank=True, null=True, verbose_name=_("Phone No.")
     )
     date_of_birth = models.DateField(
         blank=True, null=True, verbose_name=_("Date of Birth")
@@ -98,3 +99,23 @@ class UserProfile(CommonInfo):
     class Meta:
         verbose_name = "User Profile"
         verbose_name_plural = "User Profile"
+
+
+class OTP(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    secret_key = models.CharField(max_length=32, blank=True)
+    verified = models.BooleanField(default=False)
+    last_used = models.DateTimeField(blank=True, null=True)
+
+    @classmethod
+    def generate_otp(cls, user):
+        otp, created = cls.objects.get_or_create(user=user)
+
+        # generate 32 byte random secret key
+        secret_key = pyotp.random_base32()
+        otp.secret_key = secret_key
+        otp.save()
+        totp = pyotp.TOTP(secret_key, interval=120)
+        otp_code = totp.now()
+
+        return otp_code
