@@ -7,10 +7,14 @@ from apps.users.api.v1.views.views import (
     PasswordResetRequestView,
     ResetPasswordView,
     UserRegisterView,
+    schedule_mail_celery,
+    send_mail_celery,
 )
 
 urlpatterns = [
     path("register/", UserRegisterView.as_view(), name="register"),
+    path("send-mail/", send_mail_celery, name="send_mail"),
+    path("schedule-mail/", schedule_mail_celery, name="schedule_mail"),
     path(
         "account/password/change/", ChangePasswordView.as_view(), name="change_password"
     ),
