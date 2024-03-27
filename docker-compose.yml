@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    command: bash -c "poetry run python -m core.manage migrate && poetry run python -m core.manage runserver 0.0.0.0:8000"
+    volumes:
+      - .:/LibraryMgmtSys
+    ports:
+      - "8000:8000"
+    env_file:
+      - core/LibraryMgmtSys/.env.local
+    depends_on:
+      - db
+
+  db:
+    image: postgres:alpine
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - core/LibraryMgmtSys/.env.local
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    command: --port 6380
+
+  celery:
+    restart: always
+    build:
+      context: .
+    command: make celery
+    volumes:
+      - .:/LibraryMgmtSys
+    env_file:
+      - core/LibraryMgmtSys/.env.local
+    container_name: celery
+    depends_on:
+      - db
+      - redis
+      - web
+
+  celery_beat:
+    build:
+      context: .
+    command: make celery-beat
+    volumes:
+      - .:/LibraryMgmtSys
+    env_file:
+      - core/LibraryMgmtSys/.env.local
+    container_name: celery-beat
+    depends_on:
+      - db
+      - redis
+      - celery
+
+volumes:
+  postgres_data:

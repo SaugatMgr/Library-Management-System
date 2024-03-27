@@ -11,3 +11,9 @@ class GenderChoices(models.TextChoices):
     MALE = "M", "Male"
     FEMALE = "F", "Female"
     OTHERS = "O", "Others"
+
+
+class BookStatusChoices(models.TextChoices):
+    AVAILABLE = "Available"
+    RESERVED = "Reserved"
+    UNAVAILABLE = "Unavailable"

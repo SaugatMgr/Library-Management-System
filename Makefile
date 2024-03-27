@@ -41,3 +41,56 @@ superuser:
 
 .PHONY: setup
 setup: install migrate
+
+# Celery Commands
+.PHONY: celery
+celery:
+	poetry run celery -A core.LibraryMgmtSys worker -l info
+
+.PHONY: celery-beat
+celery-beat:
+	poetry run celery -A core.LibraryMgmtSys beat -l info
+
+# Docker commands
+.PHONY: compose-up
+compose-up:
+	poetry run docker-compose up
+
+.PHONY: compose-down
+compose-down:
+	poetry run docker-compose down
+
+.PHONY: compose-build
+compose-build:
+	poetry run docker-compose build
+
+.PHONY: rebuild
+rebuild:
+	poetry run docker-compose down && poetry run docker-compose build && poetry run docker-compose up
+
+.PHONY: compose-d
+compose-d:
+	poetry run docker-compose up -d
+
+.PHONY: compose-logs
+compose-logs:
+	poetry run docker-compose logs -f
+
+.PHONY: compose-stop
+compose-stop:
+	poetry run docker-compose stop
+
+# remove all both running/stopped images, -q list only ids, -f specifies force remove
+.PHONY: rm-images
+rm-images:
+	poetry run docker rmi $(poetry run docker images -q) -f
+
+# remove all both running/stopped containers, -a means all, -q list only ids, -f specifies force remove
+.PHONY: rm-containers
+rm-containers:
+	poetry run docker rm $(poetry run docker ps -a -q) -f
+
+# remove all both running/stopped volumes, -q list only ids, -f specifies force remove
+.PHONY: rm-volumes
+rm-volumes:
+	poetry run docker volume rm $(poetry run docker volume ls -q) -f

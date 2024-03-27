@@ -9,12 +9,14 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 djangorestframework = "^3.14.0"
-psycopg2 = "^2.9.9"
 django-environ = "^0.11.2"
 django-jazzmin = "^2.6.0"
 djangorestframework-simplejwt = "^5.3.1"
 pillow = "^10.2.0"
 pyotp = "^2.9.0"
+celery = {extras = ["redis"], version = "^5.3.6"}
+django-celery-beat = "^2.6.0"
+psycopg2-binary = "^2.9.9"
 
 
 [tool.poetry.group.dev.dependencies]
