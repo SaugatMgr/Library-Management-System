@@ -18,8 +18,9 @@ DJANGO_APPS = [
 
 CUSTOM_APPS = [
     "apps.users",
+    "apps.books",
 ]
-THIRD_PARTY_APPS = ["rest_framework", "rest_framework_simplejwt"]
+THIRD_PARTY_APPS = ["rest_framework", "rest_framework_simplejwt", "django_celery_beat"]
 INSTALLED_APPS = DJANGO_APPS + CUSTOM_APPS + THIRD_PARTY_APPS
 
 AUTH_USER_MODEL = "users.CustomUser"
