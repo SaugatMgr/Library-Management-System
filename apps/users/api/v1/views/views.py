@@ -1,9 +1,12 @@
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from apps.users.api.v1.repository import UserRepository
 
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
+
+from apps.users.api.v1.repository import UserRepository
 from apps.users.api.v1.serializers.post import (
     ChangePasswordSerializer,
     PasswordResetRequestSerializer,
@@ -11,6 +14,7 @@ from apps.users.api.v1.serializers.post import (
     UserRegisterSerializer,
 )
 from apps.users.models import OTP, CustomUser
+from apps.users.tasks import send_mail_to_user
 from utils.helpers import get_instance_by_attr, send_otp_to_email
 
 
@@ -68,3 +72,23 @@ class ChangePasswordView(UserAuthView):
             user.save()
             return Response({"message": "Password Changed successfully."})
         return Response({"error": "UnAuthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(["POST"])
+def send_mail_celery(request):
+    send_mail_to_user.delay()
+    return Response({"message": "Mail sent successfully."})
+
+
+@api_view(["POST"])
+def schedule_mail_celery(request):
+    data = request.data
+    crontab, created = CrontabSchedule.objects.get_or_create(hour=11, minute=31)
+    PeriodicTask.objects.create(
+        name="send-email-every-day-at-11:31-PM",
+        task="apps.users.tasks.send_mail_to_user",
+        crontab=crontab,
+        args=[data["subject"], data["message"]],
+    )
+
+    return Response({"message": "Mail scheduled successfully."})
