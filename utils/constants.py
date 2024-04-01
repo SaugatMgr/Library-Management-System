@@ -15,5 +15,16 @@ class GenderChoices(models.TextChoices):
 
 class BookStatusChoices(models.TextChoices):
     AVAILABLE = "Available"
-    RESERVED = "Reserved"
     UNAVAILABLE = "Unavailable"
+
+
+class BorrowStatusChoices(models.TextChoices):
+    NOT_RETURNED = "Not Returned"
+    RETURNED = "Returned"
+
+
+class ReserveStatusChoices(models.TextChoices):
+    PENDING = "Pending"
+    APPROVED = "Approved"
+    REJECTED = "Rejected"
+    CANCELLED = "Cancelled"
