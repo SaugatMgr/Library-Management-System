@@ -25,11 +25,17 @@ class CommonInfo(models.Model):
     modified_on = models.DateTimeField("last modified on", auto_now=True)
 
     def save(self, *args, **kwargs):
+        from apps.users.models import CustomUser
+
         user = get_current_user()
-        if user:
+
+        if isinstance(user, CustomUser):
             if not self.pk:
                 self.created_by = user
             self.modified_by = user
+        else:
+            self.created_by = None
+            self.modified_by = None
 
         super(CommonInfo, self).save(*args, **kwargs)
 
