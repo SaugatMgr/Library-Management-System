@@ -71,4 +71,5 @@ class ReserveSerializer(serializers.ModelSerializer):
             "reserver",
             "reserved_date",
             "reserve_status",
+            "reason",
         )
