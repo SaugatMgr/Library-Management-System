@@ -88,3 +88,17 @@ class Reserve(CommonInfo):
 
     def __str__(self) -> str:
         return f"{self.book} -- {self.reserver.get_full_name}"
+
+
+class ReserveQueue(models.Model):
+    book = models.OneToOneField(
+        Book, on_delete=models.CASCADE, related_name="reserve_queue"
+    )
+    users = models.JSONField(default=list)
+
+    class Meta:
+        verbose_name = "Reserve Queue"
+        verbose_name_plural = "Reserve Queue"
+
+    def __str__(self) -> str:
+        return f"{self.book} -- Queue"
