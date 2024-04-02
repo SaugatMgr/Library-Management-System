@@ -16,7 +16,10 @@ from apps.books.api.v1.serializers.get import (
     ReserveSerializer,
     TagSerializer,
 )
-from apps.books.api.v1.serializers.post import BookCreateUpdateSerializer
+from apps.books.api.v1.serializers.post import (
+    BookCreateUpdateSerializer,
+    UpdateReserveStatusSerializer,
+)
 from apps.books.models import Borrow, Genre, Reserve, Tag
 from utils.helpers import to_internal_value
 
@@ -111,9 +114,14 @@ class ReserveModelViewSet(ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="update-reservation-status")
     def update_reservation_status(self, request, *args, **kwargs):
-        reserve_status = request.data["reserve_status"]
-        reason = request.data.get("reason")
-        ReserveRepository.update_reservation_status(
-            kwargs["pk"], reserve_status, reason
+        data = request.data
+        update_reserve_status_serializer = UpdateReserveStatusSerializer(data=data)
+        update_reserve_status_serializer.is_valid(raise_exception=True)
+        validated_data = update_reserve_status_serializer.validated_data
+        response = ReserveRepository.update_reservation_status(
+            validated_data["reserver"],
+            kwargs["pk"],
+            validated_data["reserve_status"],
+            validated_data.get("reason"),
         )
-        return Response({"message": "Reservation status updated successfully."})
+        return response
