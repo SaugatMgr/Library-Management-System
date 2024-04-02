@@ -9,7 +9,7 @@ from apps.books.helpers.error_messages import (
     ALREADY_RESERVED,
     OUT_OF_STOCK,
 )
-from apps.books.models import Book, Borrow, Reserve
+from apps.books.models import Book, Borrow, Reserve, ReserveQueue
 from utils.constants import BookStatusChoices, BorrowStatusChoices, ReserveStatusChoices
 from utils.helpers import generate_error, get_instance_by_attr
 from utils.threads import get_current_user
@@ -130,18 +130,61 @@ class ReserveRepository:
         Reserve.objects.create(**data)
 
     @classmethod
-    def update_reservation_status(cls, reserve_id, reserve_status, reason):
+    def update_reserve_fields(cls, reserve, reserve_status, reason):
+        reserve.reserve_status = reserve_status
+        reserve.reason = reason if reason else None
+        reserve.save()
+
+    @classmethod
+    def update_reservation_status(cls, reserver, reserve_id, reserve_status, reason):
         reserve = get_instance_by_attr(Reserve, "id", reserve_id)
-        if (
-            reserve_status == ReserveStatusChoices.REJECTED
-            or reserve_status == ReserveStatusChoices.CANCELLED
-            and not reason
-        ):
+        accepted = ReserveStatusChoices.APPROVED
+        rejected = ReserveStatusChoices.REJECTED
+        cancelled = ReserveStatusChoices.CANCELLED
+
+        if (reserve_status == rejected or reserve_status == cancelled) and not reason:
             return Response(
                 {
                     "error": "Please provide a reason for rejecting or cancelling the reservation."
                 },
                 status=400,
             )
-        reserve.reserve_status = reserve_status
-        reserve.save()
+        if reserve_status == accepted:
+            reserve_queue_data = {
+                "book": reserve.book,
+                "user": reserver,
+            }
+            cls.update_reserve_fields(reserve, reserve_status, reason)
+            response = ReserveQueueRepository.add_to_queue(reserve_queue_data)
+
+            return response
+        cls.update_reserve_fields(reserve, reserve_status, reason)
+        return Response({"message": "Reservation status updated successfully."})
+
+
+class ReserveQueueRepository:
+    @classmethod
+    def get_all(cls):
+        return ReserveQueue.objects.filter()
+
+    @classmethod
+    def add_to_queue(cls, data):
+        book = data["book"]
+        user = data["user"]
+        user_id = str(user.id)
+        reserve_queue, created = ReserveQueue.objects.get_or_create(book=book)
+        users = reserve_queue.users
+
+        if not users:
+            reserve_queue.users = [user_id]
+            reserve_queue.save()
+        else:
+            if user_id not in users:
+                users.append(user_id)
+                reserve_queue.save()
+            else:
+                return Response(
+                    {"message": "You are already in the queue for this book."},
+                    status=400,
+                )
+        return Response({"message": "You have been added to the queue."})
