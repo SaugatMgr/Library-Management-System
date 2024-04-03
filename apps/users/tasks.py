@@ -3,7 +3,7 @@ from celery import shared_task
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 
-from core.LibraryMgmtSys.local import EMAIL_HOST_USER
+from core.LibraryMgmtSys.production import EMAIL_HOST_USER
 
 User = get_user_model()
 
