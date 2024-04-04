@@ -102,3 +102,13 @@ class ReserveQueue(models.Model):
 
     def __str__(self) -> str:
         return f"{self.book} -- Queue"
+
+
+class Notification(CommonInfo):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField()
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return f"Notification for {self.user} -- {self.timestamp}"

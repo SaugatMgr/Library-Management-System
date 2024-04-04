@@ -10,6 +10,8 @@ from apps.books.helpers.error_messages import (
     OUT_OF_STOCK,
 )
 from apps.books.models import Book, Borrow, Reserve, ReserveQueue
+from apps.books.tasks import notify_book_available
+
 from utils.constants import BookStatusChoices, BorrowStatusChoices, ReserveStatusChoices
 from utils.helpers import generate_error, get_instance_by_attr
 from utils.threads import get_current_user
@@ -64,6 +66,9 @@ class BookRepository:
             if book.availability_status == BookStatusChoices.UNAVAILABLE:
                 book.availability_status = BookStatusChoices.AVAILABLE
                 book.save()
+                user_id = ReserveQueueRepository.remove_from_queue(book)
+                if user_id:
+                    notify_book_available.delay(user_id, book.id)
             borrow.borrow_status = BorrowStatusChoices.RETURNED
             borrow.returned_date = timezone.now()
             borrow.save()
@@ -188,3 +193,13 @@ class ReserveQueueRepository:
                     status=400,
                 )
         return Response({"message": "You have been added to the queue."})
+
+    @classmethod
+    def remove_from_queue(cls, book):
+        queue_of_book = cls.get_all().filter(book=book).first()
+        if queue_of_book:
+            users = queue_of_book.users
+            if users:
+                to_be_notified_user = users.pop(0)
+                queue_of_book.save()
+                return to_be_notified_user
