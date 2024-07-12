@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Library Management System is a web application designed to manage the operations of a library. It provides functionalities such as adding, updating, and deleting books, managing user accounts, and keeping track of book borrow. Also this project is live/deployed at: [https://lib-hub-proj.me] but since only backend is implemented for this project, you would need admin email and password for
+The Library Management System is a web application designed to manage the operations of a library. It provides functionalities such as adding, updating, and deleting books, managing user accounts, and keeping track of book borrow. Also this project is live/deployed at: [here](https://lib-hub-proj.me) but since only backend is implemented for this project, you would need admin email and password for
 accessing the admin panel.
 
 ## Project Structure
