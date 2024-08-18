@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.books.models import Book, Borrow, Genre, Reserve, Tag
+from apps.books.models import Book, Borrow, Genre, Rating, Reserve, Tag
 from apps.users.api.v1.serializers.get import UserListSerializer
 
 
@@ -73,3 +73,15 @@ class ReserveSerializer(serializers.ModelSerializer):
             "reserve_status",
             "reason",
         )
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = (
+            "id",
+            "book",
+            "user",
+            "rating",
+        )
+        read_only_fields = ("id",)
