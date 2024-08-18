@@ -126,4 +126,4 @@ class Rating(CommonInfo):
         unique_together = ["user", "book"]
 
     def __str__(self) -> str:
-        return f"{self.user} -- {self.book} -- {self.rating}"
+        return f"{self.user.get_full_name} -- {self.book} -- {self.rating}"
