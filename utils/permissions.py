@@ -1,19 +1,19 @@
 from rest_framework import permissions
 from utils.constants import UserGroupChoices
+from utils.helpers import generate_error
 
 
 class AdminPermission(permissions.BasePermission):
-    message = "Only Admin can access."
+    message = generate_error(message="Only Admin can access.", code="admin_only")
 
     def has_permission(self, request, view):
-        user = request.user
-
-        if user:
-            return user.is_superuser
+        return request.user and request.user.is_active and request.user.is_superuser
 
 
-class LibraryAdminPermission(permissions.BasePermission):
-    message = "Only Library Admin can access."
+class LibrarianOrAdminPermission(permissions.BasePermission):
+    message = generate_error(
+        message="Only Librarian or Admin can access.", code="librarian_or_admin_only"
+    )
 
     def has_permission(self, request, view):
         user = request.user
@@ -21,11 +21,14 @@ class LibraryAdminPermission(permissions.BasePermission):
             return user.is_active and (
                 UserGroupChoices.ADMIN
                 in user.groups.all().values_list("name", flat=True)
+                or user.is_superuser
             )
 
 
 class ProfileOwnerOrAdminPermission(permissions.BasePermission):
-    message = "Only the profile user or Admin can access"
+    message = generate_error(
+        message="Only Profile Owner or Admin can access.", code="owner_or_admin_only"
+    )
 
     def has_permission(self, request, view):
         user = request.user
