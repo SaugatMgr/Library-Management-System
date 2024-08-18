@@ -14,6 +14,7 @@ from apps.books.api.v1.serializers.get import (
     BookListDetailSerializer,
     BorrowSerializer,
     GenreSerializer,
+    RatingSerializer,
     ReserveSerializer,
     TagSerializer,
 )
@@ -21,7 +22,7 @@ from apps.books.api.v1.serializers.post import (
     BookCreateUpdateSerializer,
     UpdateReserveStatusSerializer,
 )
-from apps.books.models import Borrow, Genre, Reserve, Tag
+from apps.books.models import Borrow, Genre, Rating, Reserve, Tag
 from utils.helpers import to_internal_value
 from utils.permissions import (
     LibrarianOrAdminPermission,
@@ -144,3 +145,8 @@ class ReserveModelViewSet(ModelViewSet):
             validated_data.get("reason"),
         )
         return response
+
+
+class RatingModelViewSet(ModelViewSet):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
