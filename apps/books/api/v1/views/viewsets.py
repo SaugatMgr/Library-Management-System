@@ -3,6 +3,7 @@ from django.db import transaction
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 
 from apps.books.api.v1.repository import (
     BookRepository,
@@ -22,6 +23,9 @@ from apps.books.api.v1.serializers.post import (
 )
 from apps.books.models import Borrow, Genre, Reserve, Tag
 from utils.helpers import to_internal_value
+from utils.permissions import (
+    LibrarianOrAdminPermission,
+)
 
 
 class GenreModelViewSet(ModelViewSet):
@@ -41,12 +45,27 @@ class BookModelViewSet(ModelViewSet):
         "create": BookCreateUpdateSerializer,
         "update": BookCreateUpdateSerializer,
     }
+    action_permissions = {
+        "create": [LibrarianOrAdminPermission],
+        "list": [AllowAny],
+        "retrieve": [AllowAny],
+        "update": [LibrarianOrAdminPermission],
+        "destroy": [LibrarianOrAdminPermission],
+    }
 
     def get_queryset(self):
         return BookRepository.get_all()
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)
+
+    def get_permissions(self):
+        return [
+            permission()
+            for permission in self.action_permissions.get(
+                self.action, [LibrarianOrAdminPermission]
+            )
+        ]
 
     def create(self, request, *args, **kwargs):
         data = request.data
