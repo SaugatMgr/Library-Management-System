@@ -1,6 +1,7 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from utils.constants import BookStatusChoices, BorrowStatusChoices, ReserveStatusChoices
 from utils.models import CommonInfo
@@ -112,3 +113,17 @@ class Notification(CommonInfo):
 
     def __str__(self) -> str:
         return f"Notification for {self.user} -- {self.timestamp}"
+
+
+class Rating(CommonInfo):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ratings")
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="ratings")
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+
+    class Meta:
+        unique_together = ["user", "book"]
+
+    def __str__(self) -> str:
+        return f"{self.user} -- {self.book} -- {self.rating}"
