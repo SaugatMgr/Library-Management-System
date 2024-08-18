@@ -27,7 +27,7 @@ class BookRepository:
         book = get_instance_by_attr(Book, "id", data["book_id"])
         borrower = data["borrower"]
         if (
-            BorrowRepository.get_all()
+            cls.get_all()
             .filter(
                 book=book,
                 borrower=borrower,
