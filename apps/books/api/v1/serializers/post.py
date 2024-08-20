@@ -18,8 +18,7 @@ class BookCreateUpdateSerializer(serializers.ModelSerializer):
             "price",
             "quantity",
             "isbn",
-            "genre",
-            "tag",
+            "genres",
         )
 
 

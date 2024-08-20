@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.books.models import Book, Borrow, Genre, Rating, Reserve, Tag
+from apps.books.models import Book, Borrow, Genre, Rating, Reserve
 from apps.users.api.v1.serializers.get import UserListSerializer
 
 
@@ -10,15 +10,8 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class TagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = "__all__"
-
-
 class BookListDetailSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(read_only=True)
-    tag = TagSerializer(many=True, read_only=True)
+    genres = GenreSerializer(read_only=True, many=True)
 
     class Meta:
         model = Book
@@ -27,7 +20,7 @@ class BookListDetailSerializer(serializers.ModelSerializer):
             "title",
             "author",
             "publisher",
-            "publication_year",
+            "publication_date",
             "description",
             "cover",
             "pages",
@@ -35,8 +28,7 @@ class BookListDetailSerializer(serializers.ModelSerializer):
             "quantity",
             "isbn",
             "availability_status",
-            "genre",
-            "tag",
+            "genres",
             "created_on",
             "modified_on",
         )

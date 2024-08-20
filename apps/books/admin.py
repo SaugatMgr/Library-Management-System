@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Rating, Reserve, ReserveQueue, Tag, Genre, Book, Borrow
+from .models import Rating, Reserve, ReserveQueue, Genre, Book, Borrow
 
 
 class RatingInline(admin.TabularInline):
@@ -13,7 +13,6 @@ class BookAdmin(admin.ModelAdmin):
     inlines = [RatingInline]
 
 
-admin.site.register(Tag)
 admin.site.register(Genre)
 admin.site.register(Book, BookAdmin)
 admin.site.register(Borrow)
