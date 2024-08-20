@@ -23,31 +23,23 @@ class Genre(NameField):
     pass
 
 
-class Tag(NameField):
-    pass
-
-
 class Book(CommonInfo):
-    title = models.CharField(max_length=100)
-    author = models.CharField(max_length=64)
+    title = models.CharField(max_length=255)
+    author = models.CharField(max_length=150)
     publisher = models.CharField(max_length=255)
-    publication_year = models.DateField(blank=True, null=True)
+    publication_date = models.DateTimeField(blank=True, null=True)
     description = models.TextField()
     cover = models.ImageField(upload_to="books/cover/", blank=True, null=True)
     pages = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField()
-    isbn = models.CharField(max_length=17)
+    isbn = models.CharField(max_length=17, unique=True)
     availability_status = models.CharField(
         choices=BookStatusChoices.choices,
         max_length=11,
         default=BookStatusChoices.AVAILABLE,
     )
-    genre = models.ForeignKey(
-        Genre,
-        on_delete=models.CASCADE,
-    )
-    tag = models.ManyToManyField(Tag)
+    genres = models.ManyToManyField(Genre)
 
     class Meta:
         unique_together = ["title", "isbn"]
