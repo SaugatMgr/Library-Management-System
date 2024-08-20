@@ -56,11 +56,16 @@ def to_internal_value(data):
         return str(error)
 
 
-def generate_unique_file_name():
+def generate_unique_file_name(profile=None, cover=None):
     current_date_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     unique_identifier = uuid.uuid4().hex[:8]
 
-    return f"profile_pic_{current_date_time}_{unique_identifier}"
+    if profile:
+        return f"profile_pic_{current_date_time}_{unique_identifier}"
+    elif cover:
+        return f"book_cover_{current_date_time}_{unique_identifier}"
+    else:
+        return f"file_{current_date_time}_{unique_identifier}"
 
 
 def send_otp_to_email(email, otp):
