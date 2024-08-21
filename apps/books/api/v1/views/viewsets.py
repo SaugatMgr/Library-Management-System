@@ -16,14 +16,17 @@ from apps.books.api.v1.serializers.get import (
     GenreSerializer,
     RatingSerializer,
     ReserveSerializer,
-    TagSerializer,
 )
 from apps.books.api.v1.serializers.post import (
     BookCreateUpdateSerializer,
     UpdateReserveStatusSerializer,
 )
-from apps.books.models import Borrow, Genre, Rating, Reserve, Tag
-from utils.helpers import to_internal_value
+
+from apps.books.helpers.book_recommendations import (
+    BookRecommender,
+)
+from apps.books.models import Book, Borrow, Genre, Rating, Reserve
+from utils.helpers import get_instance_by_attr, to_internal_value
 from utils.permissions import (
     LibrarianOrAdminPermission,
 )
@@ -34,17 +37,13 @@ class GenreModelViewSet(ModelViewSet):
     serializer_class = GenreSerializer
 
 
-class TagModelViewSet(ModelViewSet):
-    queryset = Tag.objects.filter()
-    serializer_class = TagSerializer
-
-
 class BookModelViewSet(ModelViewSet):
     serializer_action = {
         "list": BookListDetailSerializer,
         "retrieve": BookListDetailSerializer,
         "create": BookCreateUpdateSerializer,
         "update": BookCreateUpdateSerializer,
+        "recommended_books": BookListDetailSerializer,
     }
     action_permissions = {
         "create": [LibrarianOrAdminPermission],
@@ -115,6 +114,20 @@ class BookModelViewSet(ModelViewSet):
             }
             response = BookRepository.reserve_book(data)
             return response
+
+    @action(detail=True, methods=["get"], url_path="recommended-books")
+    def recommended_books(self, request, *args, **kwargs):
+        book_id = kwargs.get("pk")
+        book = get_instance_by_attr(Book, "id", book_id)
+
+        recommender = BookRecommender()
+        recommendations = recommender.recommend(book.id)
+        books = Book.objects.filter(
+            id__in=[str(rec_id) for rec_id in recommendations["id"]]
+        )
+
+        recommendation_serializer = self.get_serializer(books, many=True)
+        return Response(recommendation_serializer.data)
 
 
 class BorrowModelViewSet(ModelViewSet):
