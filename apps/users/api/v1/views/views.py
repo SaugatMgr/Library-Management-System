@@ -3,10 +3,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
-from apps.users.api.v1.repository import UserRepository
+from django.db import transaction
+
+from apps.users.api.v1.repository import UserProfileRepository, UserRepository
 from apps.users.api.v1.serializers.post import (
     ChangePasswordSerializer,
     PasswordResetRequestSerializer,
@@ -26,11 +27,19 @@ class UserRegisterView(APIView):
     permission_classes = []
 
     def post(self, request, *args, **kwargs):
-        user_register_serializer = UserRegisterSerializer(data=request.data)
-        user_register_serializer.is_valid(raise_exception=True)
-        validated_data = user_register_serializer.validated_data
-        CustomUser.objects.create_user(**validated_data)
-        return Response({"message": "User Registered Successfully."})
+        data = request.data
+        user_data = data.get("user_data")
+        user_profile_data = data.get("user_profile_data")
+
+        with transaction.atomic():
+            user_register_serializer = UserRegisterSerializer(data=user_data)
+            user_register_serializer.is_valid(raise_exception=True)
+            user_validated_data = user_register_serializer.validated_data
+
+            user = CustomUser.objects.create_user(**user_validated_data)
+            user_profile_data["user"] = user.id
+            UserProfileRepository.create_profile(user_profile_data)
+            return Response({"message": "User Registered Successfully."})
 
 
 class PasswordResetRequestView(APIView):
