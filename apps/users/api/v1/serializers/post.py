@@ -41,7 +41,7 @@ class CustomTokenVerifySerializer(TokenVerifySerializer):
     token = serializers.CharField(max_length=500, required=True)
 
 
-class UserProfileUpdateSerializer(serializers.ModelSerializer):
+class UserProfileCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = (
