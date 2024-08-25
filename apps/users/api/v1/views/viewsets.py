@@ -8,7 +8,7 @@ from apps.users.api.v1.serializers.get import (
     UserProfileDetailSerializer,
     UserProfileListSerializer,
 )
-from apps.users.api.v1.serializers.post import UserProfileUpdateSerializer
+from apps.users.api.v1.serializers.post import UserProfileCreateUpdateSerializer
 from utils.permissions import AdminPermission, ProfileOwnerOrAdminPermission
 
 
@@ -32,7 +32,7 @@ class UserProfileViewSet(ModelViewSet):
     serializer_action = {
         "list": UserProfileListSerializer,
         "retrieve": UserProfileDetailSerializer,
-        "update": UserProfileUpdateSerializer,
+        "update": UserProfileCreateUpdateSerializer,
     }
     http_method_names = ["get", "put"]
     permission_classes = [ProfileOwnerOrAdminPermission]
