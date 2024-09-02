@@ -59,13 +59,14 @@ def to_internal_value(data):
 def generate_unique_file_name(profile=None, cover=None):
     current_date_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     unique_identifier = uuid.uuid4().hex[:8]
+    unique_suffix = f"{current_date_time}_{unique_identifier}"
 
     if profile:
-        return f"profile_pic_{current_date_time}_{unique_identifier}"
+        return f"profile_pic_{unique_suffix}"
     elif cover:
-        return f"book_cover_{current_date_time}_{unique_identifier}"
+        return f"book_cover_{unique_suffix}"
     else:
-        return f"file_{current_date_time}_{unique_identifier}"
+        return f"file_{unique_suffix}"
 
 
 def send_otp_to_email(email, otp):
