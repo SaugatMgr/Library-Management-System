@@ -79,6 +79,9 @@ class BookModelViewSet(ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         data = request.data
+        cover = data.pop("cover")
+        if cover:
+            data["cover"] = to_internal_value(cover)
         book_serializer = self.get_serializer(
             instance=self.get_object(), data=data, partial=True
         )
