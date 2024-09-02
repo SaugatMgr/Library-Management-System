@@ -15,7 +15,6 @@ from apps.digital_resources.api.v1.serializers.get import (
 from apps.digital_resources.api.v1.serializers.post import (
     DigitalResourceCreateUpdateSerializer,
 )
-from apps.digital_resources.models import DigitalResource
 
 from utils.helpers import to_internal_value
 from utils.permissions import (
