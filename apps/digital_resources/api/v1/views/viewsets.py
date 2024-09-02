@@ -24,8 +24,6 @@ from utils.permissions import (
 
 
 class DigitalResourceModelViewSet(ModelViewSet):
-    queryset = DigitalResource.objects.all()
-
     serializer_action = {
         "list": DigitalResourceListDetailSerializer,
         "retrieve": DigitalResourceListDetailSerializer,
@@ -57,12 +55,23 @@ class DigitalResourceModelViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs) -> Response:
         with transaction.atomic():
             data = request.data
-            file = data.get("file")
-            if file:
-                data["file"] = to_internal_value(file)
+            data["file"] = to_internal_value(data.get("file"))
             digital_res_serializer = self.get_serializer(data=request.data)
             digital_res_serializer.is_valid(raise_exception=True)
             digital_res_serializer.save()
             return Response(
                 {"message": "Digital Resource added successfully."}, status=201
+            )
+
+    def update(self, request, *args, **kwargs) -> Response:
+        with transaction.atomic():
+            data = request.data
+            data["file"] = to_internal_value(data.get("file"))
+            digital_res_serializer = self.get_serializer(
+                instance=self.get_object(), data=request.data, partial=True
+            )
+            digital_res_serializer.is_valid(raise_exception=True)
+            digital_res_serializer.save()
+            return Response(
+                {"message": "Digital Resource updated successfully."}, status=200
             )
