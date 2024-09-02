@@ -28,3 +28,10 @@ class ReserveStatusChoices(models.TextChoices):
     APPROVED = "Approved"
     REJECTED = "Rejected"
     CANCELLED = "Cancelled"
+
+
+class DigitalResourceTypeChoices(models.TextChoices):
+    VIDEO = "video", "Video"
+    AUDIO = "audio", "Audio"
+    PDF = "pdf", "pdf"
+    INTERACTIVE = "interactive", "Interactive"
