@@ -20,6 +20,7 @@ DJANGO_APPS = [
 CUSTOM_APPS = [
     "apps.users",
     "apps.books",
+    "apps.digital_resources",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
@@ -98,9 +99,6 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
