@@ -1,6 +1,7 @@
 import uuid
 import datetime
 import base64
+import mimetypes
 
 from rest_framework.exceptions import NotAcceptable
 
@@ -76,3 +77,17 @@ def send_otp_to_email(email, otp):
     recipient_list = [email]
 
     send_mail(subject, message, from_email, recipient_list)
+
+
+def compare_resource_type_with_uploaded_file(file_name, resource_type):
+    """
+    compares the resource type of digital resource with the uploaded file type
+    """
+    mime_type, _ = mimetypes.guess_type(file_name)
+    expected_mime_types = {
+        "video": ["video/mp4", "video/x-msvideo", "video/mpeg"],
+        "audio": ["audio/mpeg", "audio/x-wav", "audio/mp4"],
+        "pdf": ["application/pdf"],
+        "interactive": ["application/x-shockwave-flash", "text/html"],
+    }
+    return mime_type, mime_type in expected_mime_types.get(resource_type, [])
