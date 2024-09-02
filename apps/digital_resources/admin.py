@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from apps.digital_resources.models import DigitalResource
+
+admin.site.register(DigitalResource)
