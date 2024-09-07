@@ -1,3 +1,4 @@
+import re
 import random
 
 from rest_framework import serializers
@@ -34,3 +35,14 @@ def validate_password_fields(
         validate_password(new_password, user)
     except DjangoValidationError as err:
         raise serializers.ValidationError({"error": err.messages})
+
+
+def validate_otp(otp):
+    otp_regex = r"^\d+$"
+    if not re.match(otp_regex, otp):
+        raise serializers.ValidationError("OTP must be digits only.")
+
+
+def validate_ph_no(phone_number):
+    if not re.match(r"^\d{10}$", phone_number):
+        raise serializers.ValidationError({"error": "Phone number must be 10 digits."})
