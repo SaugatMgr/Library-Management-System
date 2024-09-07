@@ -1,5 +1,3 @@
-import re
-
 from typing import Any, Dict
 
 from rest_framework import serializers
@@ -8,7 +6,11 @@ from rest_framework_simplejwt.serializers import (
     TokenVerifySerializer,
 )
 from rest_framework_simplejwt.settings import api_settings
-from apps.users.api.v1.helpers import validate_password_fields
+from apps.users.api.v1.helpers import (
+    validate_otp,
+    validate_password_fields,
+    validate_ph_no,
+)
 
 
 from apps.users.models import CustomUser, UserProfile
@@ -55,10 +57,7 @@ class UserProfileCreateUpdateSerializer(serializers.ModelSerializer):
         )
 
     def validate_phone_number(self, value):
-        if not re.match(r"^\d{10}$", value):
-            raise serializers.ValidationError(
-                {"error": "Phone number must be 10 digits."}
-            )
+        validate_ph_no(value)
         return value
 
 
@@ -66,10 +65,22 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
 
 
-class PasswordResetSerializer(serializers.ModelSerializer):
+class OTPSerializer(serializers.Serializer):
     otp = serializers.CharField(
         min_length=6, max_length=6, write_only=True, required=True
     )
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        validate_otp(data["otp"])
+        return data
+
+
+class UserEmailVerificationSerializer(OTPSerializer):
+    pass
+
+
+class PasswordResetSerializer(OTPSerializer, serializers.ModelSerializer):
     new_password = serializers.CharField(max_length=128, write_only=True, required=True)
     confirm_password = serializers.CharField(
         max_length=128, write_only=True, required=True
@@ -77,16 +88,11 @@ class PasswordResetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("otp", "new_password", "confirm_password")
+        fields = ("new_password", "confirm_password")
 
     def validate(self, attrs):
         user = self.context["user"]
         data = super().validate(attrs)
-        otp = data["otp"]
-        otp_regex = r"^\d+$"
-
-        if not re.match(otp_regex, otp):
-            raise serializers.ValidationError("OTP must be digits only.")
         validate_password_fields(data["new_password"], data["confirm_password"], user)
         return data
 
