@@ -1,3 +1,4 @@
+import pyotp
 import re
 import random
 
@@ -7,7 +8,8 @@ from django.conf import settings
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 
-from apps.users.models import UserProfile
+from apps.users.models import UserProfile, OTP
+from utils.helpers import get_instance_by_attr
 
 
 def generate_lib_card_no():
@@ -46,3 +48,9 @@ def validate_otp(otp):
 def validate_ph_no(phone_number):
     if not re.match(r"^\d{10}$", phone_number):
         raise serializers.ValidationError({"error": "Phone number must be 10 digits."})
+
+
+def verify_otp(user, otp):
+    otp_instance = get_instance_by_attr(OTP, "user", user)
+    valid_otp = pyotp.TOTP(otp_instance.secret_key, interval=120)
+    return valid_otp.verify(otp)
