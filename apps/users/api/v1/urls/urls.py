@@ -6,6 +6,7 @@ from apps.users.api.v1.views.views import (
     ChangePasswordView,
     PasswordResetRequestView,
     ResetPasswordView,
+    UserEmailVerificationView,
     UserRegisterView,
     schedule_mail_celery,
     send_mail_celery,
@@ -13,6 +14,7 @@ from apps.users.api.v1.views.views import (
 
 urlpatterns = [
     path("register/", UserRegisterView.as_view(), name="register"),
+    path("verify-email/", UserEmailVerificationView.as_view(), name="verify_email"),
     path("send-mail/", send_mail_celery, name="send_mail"),
     path("schedule-mail/", schedule_mail_celery, name="schedule_mail"),
     path(
