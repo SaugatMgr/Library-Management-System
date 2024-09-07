@@ -3,15 +3,18 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import NotAcceptable
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
 from django.db import transaction
 
+from apps.users.api.v1.helpers import verify_otp
 from apps.users.api.v1.repository import UserProfileRepository, UserRepository
 from apps.users.api.v1.serializers.post import (
     ChangePasswordSerializer,
     PasswordResetRequestSerializer,
     PasswordResetSerializer,
+    UserEmailVerificationSerializer,
     UserRegisterSerializer,
 )
 from apps.users.models import OTP, CustomUser
@@ -35,11 +38,40 @@ class UserRegisterView(APIView):
             user_register_serializer = UserRegisterSerializer(data=user_data)
             user_register_serializer.is_valid(raise_exception=True)
             user_validated_data = user_register_serializer.validated_data
+            user_validated_data["is_active"] = False
 
             user = CustomUser.objects.create_user(**user_validated_data)
             user_profile_data["user"] = user.id
             UserProfileRepository.create_profile(user_profile_data)
-            return Response({"message": "User Registered Successfully."})
+
+            email = user.email
+            otp = OTP.generate_otp(user=user)
+            send_otp_to_email(email, otp)
+            return Response(
+                {
+                    "message": f"An OTP has been sent to {email}. Please verify your email."
+                }
+            )
+
+
+class UserEmailVerificationView(APIView):
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        verify_email_serializer = UserEmailVerificationSerializer(data=data)
+        verify_email_serializer.is_valid(raise_exception=True)
+        validated_data = verify_email_serializer.validated_data
+
+        email = request.query_params.get("email")
+        user = get_instance_by_attr(CustomUser, "email", email)
+
+        if verify_otp(user, validated_data["otp"]):
+            user.is_active = True
+            user.save()
+            return Response({"message": "User verified successfully."})
+        else:
+            raise NotAcceptable({"error": "OTP is either invalid or expired."})
 
 
 class PasswordResetRequestView(APIView):
