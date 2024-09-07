@@ -107,6 +107,10 @@ class OTP(models.Model):
     verified = models.BooleanField(default=False)
     last_used = models.DateTimeField(blank=True, null=True)
 
+    class Meta:
+        verbose_name = "OTP"
+        verbose_name_plural = "OTPs"
+
     @classmethod
     def generate_otp(cls, user):
         otp, created = cls.objects.get_or_create(user=user)
