@@ -1,9 +1,7 @@
-import pyotp
-
-from apps.users.api.v1.helpers import generate_lib_card_no
+from apps.users.api.v1.helpers import generate_lib_card_no, verify_otp
 from apps.users.api.v1.serializers.post import UserProfileCreateUpdateSerializer
-from apps.users.models import CustomUser, UserProfile, OTP
-from utils.helpers import get_instance_by_attr, to_internal_value
+from apps.users.models import CustomUser, UserProfile
+from utils.helpers import to_internal_value
 
 
 class UserRepository:
@@ -16,10 +14,7 @@ class UserRepository:
         otp = data["otp"]
         new_pwd = data["new_password"]
 
-        otp_instance = get_instance_by_attr(OTP, "user", user)
-        valid_otp = pyotp.TOTP(otp_instance.secret_key, interval=120)
-
-        if valid_otp.verify(otp):
+        if verify_otp(user, otp):
             user.set_password(new_pwd)
             user.save()
             return {"message": "Password reset successfully."}
