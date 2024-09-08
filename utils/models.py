@@ -41,3 +41,13 @@ class CommonInfo(models.Model):
 
     class Meta:
         abstract = True
+
+
+class NameField(CommonInfo):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        abstract = True

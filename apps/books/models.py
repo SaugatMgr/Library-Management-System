@@ -4,19 +4,9 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from utils.constants import BookStatusChoices, BorrowStatusChoices, ReserveStatusChoices
-from utils.models import CommonInfo
+from utils.models import CommonInfo, NameField
 
 User = get_user_model()
-
-
-class NameField(CommonInfo):
-    name = models.CharField(max_length=64)
-
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return self.name
 
 
 class Genre(NameField):
