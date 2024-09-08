@@ -13,7 +13,7 @@ class Grade(NameField):
     class Meta:
         verbose_name = _("Grade")
         verbose_name_plural = _("Grades")
-        ordering = ["-created_at"]
+        ordering = ["-created_on"]
 
 
 class Department(NameField):
@@ -43,7 +43,7 @@ class Department(NameField):
     class Meta:
         verbose_name = _("Department")
         verbose_name_plural = _("Departments")
-        ordering = ["-created_at"]
+        ordering = ["-created_on"]
 
 
 class Staff(CommonInfo):
@@ -75,7 +75,7 @@ class Staff(CommonInfo):
     class Meta:
         verbose_name = "Staff"
         verbose_name_plural = "Staffs"
-        ordering = ["-created_at"]
+        ordering = ["-created_on"]
 
 
 class Student(CommonInfo):
@@ -148,4 +148,4 @@ class Teacher(CommonInfo):
     class Meta:
         verbose_name = "Teacher"
         verbose_name_plural = "Teachers"
-        ordering = ["-created_at"]
+        ordering = ["-created_on"]
