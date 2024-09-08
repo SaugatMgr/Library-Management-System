@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from apps.academic.models import LibrarySection, Shelf
 from utils.constants import BookStatusChoices, BorrowStatusChoices, ReserveStatusChoices
 from utils.models import CommonInfo, NameField
 
@@ -30,6 +31,16 @@ class Book(CommonInfo):
         default=BookStatusChoices.AVAILABLE,
     )
     genres = models.ManyToManyField(Genre)
+    section = models.ForeignKey(
+        LibrarySection,
+        on_delete=models.CASCADE,
+        related_name="books",
+        blank=True,
+        null=True,
+    )
+    shelf = models.ForeignKey(
+        Shelf, on_delete=models.CASCADE, related_name="books", blank=True, null=True
+    )
 
     class Meta:
         unique_together = ["title", "isbn"]
