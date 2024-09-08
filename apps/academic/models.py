@@ -46,6 +46,33 @@ class Department(NameField):
         ordering = ["-created_on"]
 
 
+class LibrarySection(CommonInfo):
+    name = models.CharField(max_length=100, verbose_name=_("Name"))
+    description = models.TextField(blank=True, verbose_name=_("Description"))
+    location = models.CharField(max_length=255, blank=True, verbose_name=_("Location"))
+
+    class Meta:
+        verbose_name = _("Library Section")
+        verbose_name_plural = _("Library Sections")
+        ordering = ["-created_on"]
+
+
+class Shelf(CommonInfo):
+    number = models.CharField(max_length=10, verbose_name=_("Number"))
+    description = models.TextField(blank=True, verbose_name=_("Description"))
+    section = models.ForeignKey(
+        LibrarySection,
+        on_delete=models.CASCADE,
+        related_name="shelves",
+        verbose_name=_("Section"),
+    )
+
+    class Meta:
+        verbose_name = _("Shelf")
+        verbose_name_plural = _("Shelves")
+        ordering = ["-created_on"]
+
+
 class Staff(CommonInfo):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employee_id = models.CharField(
@@ -59,7 +86,7 @@ class Staff(CommonInfo):
     )
     role = models.CharField(max_length=100, verbose_name=_("Role"))
     authorized_sections = models.ManyToManyField(
-        "books.Section",
+        LibrarySection,
         related_name="authorized_staff",
         blank=True,
         verbose_name=_("Authorized Sections"),
