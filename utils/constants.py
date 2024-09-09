@@ -35,3 +35,20 @@ class DigitalResourceTypeChoices(models.TextChoices):
     AUDIO = "audio", "Audio"
     PDF = "pdf", "pdf"
     INTERACTIVE = "interactive", "Interactive"
+
+
+class MemberShipPlanChoices(models.TextChoices):
+    MONTHLY = "monthly", "Monthly"
+    YEARLY = "yearly", "Yearly"
+    LIFETIME = "lifetime", "Lifetime"
+
+
+class SemesterChoices(models.TextChoices):
+    FIRST = "First"
+    SECOND = "Second"
+    THIRD = "Third"
+    FOURTH = "Fourth"
+    FIFTH = "Fifth"
+    SIXTH = "Sixth"
+    SEVENTH = "Seventh"
+    EIGHTH = "Eighth"
