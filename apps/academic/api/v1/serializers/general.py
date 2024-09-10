@@ -25,6 +25,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Department
         fields = (
             "id",
+            "name",
             "head_of_department",
             "description",
             "phone_number",
