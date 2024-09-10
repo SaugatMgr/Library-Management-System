@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -15,7 +16,7 @@ class MembershipPlan(CommonInfo):
         help_text="Duration of the plan in days"
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} - {self.plan_type}"
 
 
@@ -25,5 +26,10 @@ class Membership(models.Model):
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField()
 
-    def __str__(self):
+    def save(self, *args, **kwargs) -> None:
+        if not self.end_date:
+            self.end_date = self.start_date + timedelta(days=self.plan.duration_in_days)
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
         return f"{self.user.get_full_name} - {self.plan.name}"
