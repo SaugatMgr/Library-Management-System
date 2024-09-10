@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.utils.timezone import now
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -20,7 +21,7 @@ class MembershipPlan(CommonInfo):
         return f"{self.name} - {self.plan_type}"
 
 
-class Membership(models.Model):
+class Membership(CommonInfo):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     plan = models.ForeignKey(MembershipPlan, on_delete=models.SET_NULL, null=True)
     start_date = models.DateTimeField(auto_now_add=True)
@@ -28,7 +29,7 @@ class Membership(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         if not self.end_date:
-            self.end_date = self.start_date + timedelta(days=self.plan.duration_in_days)
+            self.end_date = now() + timedelta(days=self.plan.duration_in_days)
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
