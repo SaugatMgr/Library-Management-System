@@ -21,6 +21,8 @@ CUSTOM_APPS = [
     "apps.users",
     "apps.books",
     "apps.digital_resources",
+    "apps.academic",
+    "apps.membership",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
