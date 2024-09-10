@@ -5,6 +5,7 @@ from apps.academic.api.v1.views.viewsets import (
     GradeViewSet,
     LibrarySectionViewSet,
     ShelfViewSet,
+    StudentViewSet,
     TeacherViewSet,
     StaffViewSet,
 )
@@ -17,5 +18,6 @@ academics_router.register(
     "library-sections", LibrarySectionViewSet, basename="library-sections"
 )
 academics_router.register("shelves", ShelfViewSet, basename="shelves")
+academics_router.register("students", StudentViewSet, basename="students")
 academics_router.register("teachers", TeacherViewSet, basename="teachers")
 academics_router.register("staffs", StaffViewSet, basename="staffs")
