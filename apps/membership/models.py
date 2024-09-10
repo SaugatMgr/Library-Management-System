@@ -3,7 +3,11 @@ from django.utils.timezone import now
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from utils.constants import MemberShipPlanChoices
+from utils.constants import (
+    MemberShipPlanChoices,
+    PaymentMethodChoices,
+    PaymentStatusChoices,
+)
 from utils.models import CommonInfo
 
 User = get_user_model()
@@ -31,6 +35,24 @@ class Membership(CommonInfo):
         if not self.end_date:
             self.end_date = now() + timedelta(days=self.plan.duration_in_days)
         super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f"{self.user.get_full_name} - {self.plan.name}"
+
+
+class Payment(CommonInfo):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    plan = models.ForeignKey(MembershipPlan, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    payment_method = models.CharField(
+        max_length=6, choices=PaymentMethodChoices.choices
+    )
+    transaction_id = models.CharField(max_length=50, blank=True, null=True)
+    status = models.CharField(
+        max_length=9,
+        choices=PaymentStatusChoices.choices,
+        default=PaymentStatusChoices.PENDING,
+    )
 
     def __str__(self) -> str:
         return f"{self.user.get_full_name} - {self.plan.name}"
