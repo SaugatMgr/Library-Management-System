@@ -56,6 +56,9 @@ class LibrarySection(CommonInfo):
         verbose_name_plural = _("Library Sections")
         ordering = ["-created_on"]
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class Shelf(CommonInfo):
     number = models.CharField(max_length=10, verbose_name=_("Number"))
@@ -71,6 +74,9 @@ class Shelf(CommonInfo):
         verbose_name = _("Shelf")
         verbose_name_plural = _("Shelves")
         ordering = ["-created_on"]
+
+    def __str__(self) -> str:
+        return f"{self.number} - {self.section.name}"
 
 
 class Staff(CommonInfo):
