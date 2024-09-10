@@ -6,6 +6,7 @@ from apps.academic.models import (
     LibrarySection,
     Shelf,
     Staff,
+    Student,
     Teacher,
 )
 
@@ -51,6 +52,22 @@ class ShelfSerializer(serializers.ModelSerializer):
             "number",
             "description",
             "section",
+        )
+
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = (
+            "id",
+            "user",
+            "roll_number",
+            "registration_number",
+            "symbol_number",
+            "grade",
+            "department",
+            "semester",
+            "borrowing_period_days",
         )
 
 
