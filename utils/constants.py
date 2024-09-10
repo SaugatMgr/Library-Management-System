@@ -52,3 +52,18 @@ class SemesterChoices(models.TextChoices):
     SIXTH = "Sixth"
     SEVENTH = "Seventh"
     EIGHTH = "Eighth"
+
+
+class PaymentMethodChoices(models.TextChoices):
+    KHALTI = "khalti", "Khalti"
+    ESEWA = "esewa", "eSewa"
+
+
+class PaymentStatusChoices(models.TextChoices):
+    PENDING = "Pending"
+    COMPLETED = "Completed"
+    CANCELLED = "Cancelled"
+    FAILED = "Failed"
+    REFUNDED = "Refunded"
+    PARTIAL = "Partial"
+    REJECTED = "Rejected"
