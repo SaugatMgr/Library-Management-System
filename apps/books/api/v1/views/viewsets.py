@@ -27,6 +27,7 @@ from apps.books.helpers.book_recommendations import (
 )
 from apps.books.models import Book, Borrow, Genre, Rating, Reserve
 from utils.helpers import get_instance_by_attr, to_internal_value
+from utils.pagination import CustomPageSizePagination
 from utils.permissions import (
     LibrarianOrAdminPermission,
 )
@@ -35,6 +36,7 @@ from utils.permissions import (
 class GenreModelViewSet(ModelViewSet):
     queryset = Genre.objects.filter()
     serializer_class = GenreSerializer
+    pagination_class = CustomPageSizePagination
 
 
 class BookModelViewSet(ModelViewSet):
@@ -52,6 +54,7 @@ class BookModelViewSet(ModelViewSet):
         "update": [LibrarianOrAdminPermission],
         "destroy": [LibrarianOrAdminPermission],
     }
+    pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
         return BookRepository.get_all()
@@ -136,6 +139,7 @@ class BookModelViewSet(ModelViewSet):
 class BorrowModelViewSet(ModelViewSet):
     queryset = Borrow.objects.all()
     serializer_class = BorrowSerializer
+    pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
         return BorrowRepository.get_all()
@@ -144,6 +148,7 @@ class BorrowModelViewSet(ModelViewSet):
 class ReserveModelViewSet(ModelViewSet):
     queryset = Reserve.objects.all()
     serializer_class = ReserveSerializer
+    pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
         return ReserveRepository.get_all()
@@ -166,3 +171,4 @@ class ReserveModelViewSet(ModelViewSet):
 class RatingModelViewSet(ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
+    pagination_class = CustomPageSizePagination
