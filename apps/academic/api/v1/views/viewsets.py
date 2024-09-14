@@ -24,26 +24,31 @@ from apps.academic.models import (
     Teacher,
     Staff,
 )
+from utils.pagination import CustomPageSizePagination
 
 
 class GradeViewSet(ModelViewSet):
     queryset = Grade.objects.all()
     serializer_class = GradeSerializer
+    pagination_class = CustomPageSizePagination
 
 
 class DepartmentViewSet(ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+    pagination_class = CustomPageSizePagination
 
 
 class LibrarySectionViewSet(ModelViewSet):
     queryset = LibrarySection.objects.all()
     serializer_class = LibrarySectionSerializer
+    pagination_class = CustomPageSizePagination
 
 
 class ShelfViewSet(ModelViewSet):
     queryset = Shelf.objects.all()
     serializer_class = ShelfSerializer
+    pagination_class = CustomPageSizePagination
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -54,6 +59,7 @@ class ShelfViewSet(ModelViewSet):
 class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+    pagination_class = CustomPageSizePagination
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -64,6 +70,7 @@ class StudentViewSet(ModelViewSet):
 class TeacherViewSet(ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
+    pagination_class = CustomPageSizePagination
 
     def get_serializer_class(self):
         if self.action == "retrieve":
@@ -74,6 +81,7 @@ class TeacherViewSet(ModelViewSet):
 class StaffViewSet(ModelViewSet):
     queryset = Staff.objects.all()
     serializer_class = StaffSerializer
+    pagination_class = CustomPageSizePagination
 
     def get_serializer_class(self):
         if self.action == "retrieve":

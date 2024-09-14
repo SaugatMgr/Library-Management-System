@@ -9,6 +9,7 @@ from apps.membership.api.v1.serializers.get import (
 )
 from apps.membership.api.v1.serializers.post import MembershipCreateUpdateSerializer
 from apps.membership.models import Membership, MembershipPlan
+from utils.pagination import CustomPageSizePagination
 
 
 class MemberShipModelViewSet(ModelViewSet):
@@ -19,6 +20,7 @@ class MemberShipModelViewSet(ModelViewSet):
         "create": MembershipCreateUpdateSerializer,
         "update": MembershipCreateUpdateSerializer,
     }
+    pagination_class = CustomPageSizePagination
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)
@@ -27,3 +29,4 @@ class MemberShipModelViewSet(ModelViewSet):
 class MemberShipPlanModelViewSet(ModelViewSet):
     queryset = MembershipPlan.objects.all()
     serializer_class = MembershipPlanSerializer
+    pagination_class = CustomPageSizePagination

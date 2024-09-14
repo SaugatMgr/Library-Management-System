@@ -17,6 +17,7 @@ from apps.digital_resources.api.v1.serializers.post import (
 )
 
 from utils.helpers import to_internal_value
+from utils.pagination import CustomPageSizePagination
 from utils.permissions import (
     LibrarianOrAdminPermission,
 )
@@ -36,6 +37,7 @@ class DigitalResourceModelViewSet(ModelViewSet):
         "update": [LibrarianOrAdminPermission],
         "destroy": [LibrarianOrAdminPermission],
     }
+    pagination_class = CustomPageSizePagination
 
     def get_queryset(self) -> QuerySet:
         return DigitalResourcesRepository.get_all()

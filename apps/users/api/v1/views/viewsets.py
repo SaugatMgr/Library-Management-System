@@ -9,6 +9,7 @@ from apps.users.api.v1.serializers.get import (
     UserProfileListSerializer,
 )
 from apps.users.api.v1.serializers.post import UserProfileCreateUpdateSerializer
+from utils.pagination import CustomPageSizePagination
 from utils.permissions import AdminPermission, ProfileOwnerOrAdminPermission
 
 
@@ -20,6 +21,7 @@ class UserViewset(ModelViewSet):
         "create": UserListSerializer,
         "update": UserListSerializer,
     }
+    pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
         return UserRepository.get_all()
@@ -34,6 +36,7 @@ class UserProfileViewSet(ModelViewSet):
         "retrieve": UserProfileDetailSerializer,
         "update": UserProfileCreateUpdateSerializer,
     }
+    pagination_class = CustomPageSizePagination
     http_method_names = ["get", "put"]
     permission_classes = [ProfileOwnerOrAdminPermission]
 
