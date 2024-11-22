@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/admin/", admin.site.urls),
     path("api/v1/", include(base_router.urls)),
     path("api/v1/", include("apps.users.api.v1.urls.urls")),
+    path("api/v1/", include("apps.books.api.v1.urls.urls")),
 ]
 
 if settings.DEBUG:
