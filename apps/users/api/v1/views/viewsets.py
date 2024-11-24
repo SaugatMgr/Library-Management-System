@@ -37,11 +37,10 @@ class UserProfileViewSet(ModelViewSet):
         "update": UserProfileCreateUpdateSerializer,
     }
     pagination_class = CustomPageSizePagination
-    http_method_names = ["get", "put"]
     permission_classes = [ProfileOwnerOrAdminPermission]
 
     def get_queryset(self):
-        return UserProfileRepository.get_all()
+        return UserProfileRepository.get_all(user=self.request.user)
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)

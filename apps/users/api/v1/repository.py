@@ -24,8 +24,10 @@ class UserRepository:
 
 class UserProfileRepository:
     @classmethod
-    def get_all(cls):
-        return UserProfile.objects.filter()
+    def get_all(cls, user):
+        if user.is_superuser:
+            return UserProfile.objects.all()
+        return UserProfile.objects.filter(user=user)
 
     @classmethod
     def create_or_update_profile(cls, data, instance=None):

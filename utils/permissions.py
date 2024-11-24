@@ -30,13 +30,6 @@ class ProfileOwnerOrAdminPermission(permissions.BasePermission):
         message="Only Profile Owner or Admin can access.", code="owner_or_admin_only"
     )
 
-    def has_permission(self, request, view):
-        user = request.user
-        if user:
-            if request.method in ["GET", "PUT"]:
-                return user.is_active and user.is_authenticated
-        return False
-
     def has_object_permission(self, request, view, obj):
         user = request.user
         if user:
