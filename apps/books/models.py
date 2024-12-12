@@ -44,6 +44,7 @@ class Book(CommonInfo):
 
     class Meta:
         unique_together = ["title", "isbn"]
+        ordering = ["-created_on"]
 
     def __str__(self) -> str:
         return f"{self.author} -- {self.title}"
