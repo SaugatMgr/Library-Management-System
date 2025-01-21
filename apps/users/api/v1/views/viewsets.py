@@ -1,6 +1,8 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
+from apps.books.api.v1.serializers.get import UserNotificationSerializer
 from apps.users.api.v1.repository import UserProfileRepository, UserRepository
 from apps.users.api.v1.serializers.get import (
     UserDetailSerializer,
@@ -9,6 +11,7 @@ from apps.users.api.v1.serializers.get import (
     UserProfileListSerializer,
 )
 from apps.users.api.v1.serializers.post import UserProfileCreateUpdateSerializer
+from apps.books.models import Notification
 from utils.pagination import CustomPageSizePagination
 from utils.permissions import AdminPermission, ProfileOwnerOrAdminPermission
 
@@ -20,6 +23,7 @@ class UserViewset(ModelViewSet):
         "retrieve": UserDetailSerializer,
         "create": UserListSerializer,
         "update": UserListSerializer,
+        "get_notifications": UserNotificationSerializer,
     }
     pagination_class = CustomPageSizePagination
 
@@ -28,6 +32,17 @@ class UserViewset(ModelViewSet):
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)
+
+    @action(detail=True, methods=["get"], url_path="notifications")
+    def get_notifications(self, request, pk=None):
+        current_user = self.get_object()
+        user_notifications = Notification.objects.filter(user=current_user)
+        paginator = CustomPageSizePagination()
+        paginated_user_notifications = paginator.paginate_queryset(
+            user_notifications, request
+        )
+        serializer = self.get_serializer(paginated_user_notifications, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class UserProfileViewSet(ModelViewSet):
