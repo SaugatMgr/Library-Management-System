@@ -14,6 +14,7 @@ from apps.books.api.v1.serializers.get import (
     BookListDetailSerializer,
     BorrowSerializer,
     GenreSerializer,
+    NotificationSerializer,
     RatingSerializer,
     ReserveSerializer,
 )
@@ -25,11 +26,12 @@ from apps.books.api.v1.serializers.post import (
 from apps.books.helpers.book_recommendations import (
     BookRecommender,
 )
-from apps.books.models import Book, Borrow, Genre, Rating, Reserve
+from apps.books.models import Book, Borrow, Genre, Notification, Rating, Reserve
 from utils.helpers import get_instance_by_attr, to_internal_value
 from utils.pagination import CustomPageSizePagination
 from utils.permissions import (
     LibrarianOrAdminPermission,
+    NotificationUserOrLibrarianOrAdminPermission,
 )
 
 
@@ -172,3 +174,17 @@ class RatingModelViewSet(ModelViewSet):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
     pagination_class = CustomPageSizePagination
+
+
+class NotificationModelViewSet(ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    pagination_class = CustomPageSizePagination
+    permission_classes = [NotificationUserOrLibrarianOrAdminPermission]
+
+    def retrieve(self, request, *args, **kwargs):
+        notification = self.get_object()
+        if notification.user == request.user:
+            notification.is_read = True
+            notification.save()
+        return super().retrieve(request, *args, **kwargs)
