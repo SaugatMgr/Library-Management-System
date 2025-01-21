@@ -1,6 +1,10 @@
 from rest_framework import serializers
 
-from apps.books.models import Book, Borrow, Genre, Rating, Reserve
+from apps.academic.api.v1.serializers.general import (
+    LibrarySectionSerializer,
+    ShelfSerializer,
+)
+from apps.books.models import Book, Borrow, Genre, Notification, Rating, Reserve
 from apps.users.api.v1.serializers.get import UserListSerializer
 
 
@@ -12,6 +16,8 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class BookListDetailSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(read_only=True, many=True)
+    section = LibrarySectionSerializer(read_only=True)
+    shelf = ShelfSerializer(read_only=True)
 
     class Meta:
         model = Book
@@ -29,6 +35,8 @@ class BookListDetailSerializer(serializers.ModelSerializer):
             "isbn",
             "availability_status",
             "genres",
+            "section",
+            "shelf",
             "created_on",
             "modified_on",
         )
@@ -77,3 +85,25 @@ class RatingSerializer(serializers.ModelSerializer):
             "rating",
         )
         read_only_fields = ("id",)
+
+
+class ExportDataSerializer(serializers.Serializer):
+    count = serializers.IntegerField(required=False)
+    format = serializers.ChoiceField(choices=["csv", "excel"], required=True)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = "__all__"
+
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "message",
+            "timestamp",
+            "is_read",
+        ]
