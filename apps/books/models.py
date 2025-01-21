@@ -105,6 +105,9 @@ class Notification(CommonInfo):
     timestamp = models.DateTimeField()
     is_read = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ["-timestamp"]
+
     def __str__(self) -> str:
         return f"Notification for {self.user} -- {self.timestamp}"
 
