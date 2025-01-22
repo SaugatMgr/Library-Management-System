@@ -55,7 +55,11 @@ class BookRecommender:
         similar_indices = cosine_sim.argsort()[-top_n - 1 : -1][::-1]
 
         recommendations = [
-            {"title": self.df.iloc[i]["title"], "score": cosine_sim[i]}
+            {
+                "id": self.df.iloc[i]["id"],
+                "title": self.df.iloc[i]["title"],
+                "score": round(cosine_sim[i], 5),
+            }
             for i in similar_indices
         ]
         return recommendations

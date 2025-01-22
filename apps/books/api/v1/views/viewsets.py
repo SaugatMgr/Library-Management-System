@@ -125,6 +125,10 @@ class BookModelViewSet(ModelViewSet):
         recommender = BookRecommender()
         recommendations = recommender.recommend(book.id)
 
+        for data in recommendations:
+            current_book = get_instance_by_attr(Book, "id", data["id"])
+            data["cover"] = current_book.cover.url
+
         return Response({"recommended_books": recommendations})
 
 
