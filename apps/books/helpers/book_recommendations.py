@@ -52,5 +52,10 @@ class BookRecommender:
         cosine_sim = cosine_similarity(
             self.tfidf_matrix[idx : idx + 1], self.tfidf_matrix
         ).flatten()
-        similar_indices = cosine_sim.argsort()[-top_n - 1 : -1]
-        return self.df.iloc[similar_indices]
+        similar_indices = cosine_sim.argsort()[-top_n - 1 : -1][::-1]
+
+        recommendations = [
+            {"title": self.df.iloc[i]["title"], "score": cosine_sim[i]}
+            for i in similar_indices
+        ]
+        return recommendations

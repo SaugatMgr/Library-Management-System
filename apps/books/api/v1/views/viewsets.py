@@ -74,9 +74,6 @@ class BookModelViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        cover = data.pop("cover")
-        if cover:
-            data["cover"] = to_internal_value(cover)
         book_serializer = self.get_serializer(data=data)
         book_serializer.is_valid(raise_exception=True)
         book_serializer.save()
@@ -84,9 +81,6 @@ class BookModelViewSet(ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         data = request.data
-        cover = data.pop("cover")
-        if cover:
-            data["cover"] = to_internal_value(cover)
         book_serializer = self.get_serializer(
             instance=self.get_object(), data=data, partial=True
         )
@@ -130,12 +124,8 @@ class BookModelViewSet(ModelViewSet):
 
         recommender = BookRecommender()
         recommendations = recommender.recommend(book.id)
-        books = Book.objects.filter(
-            id__in=[str(rec_id) for rec_id in recommendations["id"]]
-        )
 
-        recommendation_serializer = self.get_serializer(books, many=True)
-        return Response(recommendation_serializer.data)
+        return Response({"recommended_books": recommendations})
 
 
 class BorrowModelViewSet(ModelViewSet):
