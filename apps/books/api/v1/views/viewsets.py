@@ -27,7 +27,7 @@ from apps.books.helpers.book_recommendations import (
     BookRecommender,
 )
 from apps.books.models import Book, Borrow, Genre, Notification, Rating, Reserve
-from utils.helpers import get_instance_by_attr, to_internal_value
+from utils.helpers import get_instance_by_attr
 from utils.pagination import CustomPageSizePagination
 from utils.permissions import (
     LibrarianOrAdminPermission,
