@@ -2,6 +2,7 @@ from rest_framework.routers import DefaultRouter
 
 from apps.books.api.v1.views.viewsets import (
     BookModelViewSet,
+    FinePaymentModelViewSet,
     GenreModelViewSet,
     NotificationModelViewSet,
     RatingModelViewSet,
@@ -17,3 +18,4 @@ book_router.register("borrow", BorrowModelViewSet, basename="borrow")
 book_router.register("reserve", ReserveModelViewSet, basename="reserve")
 book_router.register("rating", RatingModelViewSet, basename="rating")
 book_router.register("notifications", NotificationModelViewSet, basename="notification")
+book_router.register("fine", FinePaymentModelViewSet, basename="fine")

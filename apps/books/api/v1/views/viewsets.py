@@ -1,5 +1,6 @@
 from django.db import transaction
 
+from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
@@ -13,6 +14,8 @@ from apps.books.api.v1.repository import (
 from apps.books.api.v1.serializers.get import (
     BookListDetailSerializer,
     BorrowSerializer,
+    FinePaymentDetailSerializer,
+    FinePaymentSerializer,
     GenreSerializer,
     NotificationSerializer,
     RatingSerializer,
@@ -20,18 +23,29 @@ from apps.books.api.v1.serializers.get import (
 )
 from apps.books.api.v1.serializers.post import (
     BookCreateUpdateSerializer,
+    FinePaymentCreateSerializer,
+    NotificationUpdateSerializer,
     UpdateReserveStatusSerializer,
 )
 
 from apps.books.helpers.book_recommendations import (
     BookRecommender,
 )
-from apps.books.models import Book, Borrow, Genre, Notification, Rating, Reserve
-from utils.helpers import get_instance_by_attr
+from apps.books.helpers.payment import generate_transaction_id
+from apps.books.models import (
+    Book,
+    Borrow,
+    FinePayment,
+    Genre,
+    Notification,
+    Rating,
+    Reserve,
+)
+
+from utils.helpers import generate_error, get_instance_by_attr
 from utils.pagination import CustomPageSizePagination
 from utils.permissions import (
     LibrarianOrAdminPermission,
-    NotificationUserOrLibrarianOrAdminPermission,
 )
 
 
@@ -172,9 +186,31 @@ class RatingModelViewSet(ModelViewSet):
 
 class NotificationModelViewSet(ModelViewSet):
     queryset = Notification.objects.all()
-    serializer_class = NotificationSerializer
+    serializer_action = {
+        "list": NotificationSerializer,
+        "retrieve": NotificationSerializer,
+        "create": NotificationSerializer,
+        "update": NotificationUpdateSerializer,
+    }
+    action_permissions = {
+        "list": [AllowAny],
+        "create": [LibrarianOrAdminPermission],
+        "retrieve": [AllowAny],
+        "update": [LibrarianOrAdminPermission],
+        "destroy": [LibrarianOrAdminPermission],
+    }
     pagination_class = CustomPageSizePagination
-    permission_classes = [NotificationUserOrLibrarianOrAdminPermission]
+
+    def get_serializer_class(self):
+        return self.serializer_action.get(self.action)
+
+    def get_permissions(self):
+        return [
+            permission()
+            for permission in self.action_permissions.get(
+                self.action, [LibrarianOrAdminPermission]
+            )
+        ]
 
     def retrieve(self, request, *args, **kwargs):
         notification = self.get_object()
@@ -182,3 +218,56 @@ class NotificationModelViewSet(ModelViewSet):
             notification.is_read = True
             notification.save()
         return super().retrieve(request, *args, **kwargs)
+
+
+class FinePaymentModelViewSet(ModelViewSet):
+    queryset = FinePayment.objects.all()
+    serializer_action = {
+        "list": FinePaymentSerializer,
+        "retrieve": FinePaymentDetailSerializer,
+        "create": FinePaymentCreateSerializer,
+        "update": FinePaymentSerializer,
+    }
+    action_permissions = {
+        "list": [AllowAny],
+        "create": [LibrarianOrAdminPermission],
+        "retrieve": [AllowAny],
+        "update": [LibrarianOrAdminPermission],
+        "destroy": [LibrarianOrAdminPermission],
+    }
+    pagination_class = CustomPageSizePagination
+
+    def get_serializer_class(self):
+        return self.serializer_action.get(self.action)
+
+    def get_permissions(self):
+        return [
+            permission()
+            for permission in self.action_permissions.get(
+                self.action, [LibrarianOrAdminPermission]
+            )
+        ]
+
+    def create(self, request, *args, **kwargs):
+        with transaction.atomic():
+            data = request.data
+            amount = data.get("amount")
+            if data["payment_method"] == "cash" and not amount:
+                raise serializers.ValidationError(
+                    generate_error(
+                        message="Amount is missing.",
+                        code="amount_required",
+                    )
+                )
+            data["transaction_id"] = generate_transaction_id()
+            fine_payment_serializer = self.get_serializer(data=data)
+            fine_payment_serializer.is_valid(raise_exception=True)
+            fine_payment_serializer.save()
+
+            borrow = fine_payment_serializer.validated_data["borrow"]
+            borrow.overdue = False
+            borrow.save()
+
+            return Response(
+                {"message": "Fine payment created successfully."}, status=201
+            )
