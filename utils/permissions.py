@@ -7,7 +7,13 @@ class AdminPermission(permissions.BasePermission):
     message = generate_error(message="Only Admin can access.", code="admin_only")
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_active and request.user.is_superuser
+        user_group = request.user.groups.all().values_list("name", flat=True)
+        is_user_admin = UserGroupChoices.ADMIN in user_group
+        return (
+            request.user
+            and request.user.is_active
+            and (request.user.is_superuser or is_user_admin)
+        )
 
 
 class LibrarianOrAdminPermission(permissions.BasePermission):
