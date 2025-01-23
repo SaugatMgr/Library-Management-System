@@ -1,5 +1,14 @@
 from django.contrib import admin
-from .models import Genre, Book, Borrow, Reserve, ReserveQueue, Notification, Rating
+from .models import (
+    FinePayment,
+    Genre,
+    Book,
+    Borrow,
+    Reserve,
+    ReserveQueue,
+    Notification,
+    Rating,
+)
 
 
 class RatingInline(admin.TabularInline):
@@ -91,6 +100,38 @@ class NotificationAdmin(admin.ModelAdmin):
         "message",
     )
     ordering = ("-timestamp",)
+
+
+@admin.register(FinePayment)
+class FinePaymentAdmin(admin.ModelAdmin):
+    list_display = ("transaction_id", "borrow", "created_on")
+    search_fields = ("transaction_id", "borrow__id")
+    list_filter = ("created_on",)
+    date_hierarchy = "created_on"
+    ordering = ("-created_on",)
+    readonly_fields = ("transaction_id", "created_on", "modified_on")
+
+    def borrow(self, obj):
+        return f"Borrow #{obj.borrow.id}"
+
+    borrow.short_description = "Borrow ID"
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "transaction_id",
+                    "borrow",
+                    "amount",
+                    "payment_method",
+                    "status",
+                    "created_on",
+                    "modified_on",
+                )
+            },
+        ),
+    )
 
 
 @admin.register(Rating)
