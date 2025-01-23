@@ -130,6 +130,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LIBRARY_CARD_NO_PREFIX = "LMS-"
+FINE_PER_DAY = 10
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
