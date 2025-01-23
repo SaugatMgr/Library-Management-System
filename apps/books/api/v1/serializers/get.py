@@ -4,7 +4,15 @@ from apps.academic.api.v1.serializers.general import (
     LibrarySectionSerializer,
     ShelfSerializer,
 )
-from apps.books.models import Book, Borrow, Genre, Notification, Rating, Reserve
+from apps.books.models import (
+    Book,
+    Borrow,
+    FinePayment,
+    Genre,
+    Notification,
+    Rating,
+    Reserve,
+)
 from apps.users.api.v1.serializers.get import UserListSerializer
 
 
@@ -59,6 +67,24 @@ class BorrowSerializer(serializers.ModelSerializer):
         )
 
 
+class BorrowForFineSerializer(serializers.ModelSerializer):
+    book = serializers.StringRelatedField()
+    borrower = serializers.StringRelatedField()
+
+    class Meta:
+        model = Borrow
+        fields = (
+            "id",
+            "book",
+            "borrower",
+            "borrowed_date",
+            "due_date",
+            "returned_date",
+            "borrow_status",
+            "overdue",
+        )
+
+
 class ReserveSerializer(serializers.ModelSerializer):
     book = BookListDetailSerializer()
     reserver = UserListSerializer()
@@ -106,4 +132,34 @@ class UserNotificationSerializer(serializers.ModelSerializer):
             "message",
             "timestamp",
             "is_read",
+        ]
+
+
+class FinePaymentSerializer(serializers.ModelSerializer):
+    borrow = BorrowForFineSerializer(read_only=True)
+
+    class Meta:
+        model = FinePayment
+        fields = [
+            "id",
+            "borrow",
+            "amount",
+            "payment_method",
+            "status",
+            "transaction_id",
+        ]
+
+
+class FinePaymentDetailSerializer(serializers.ModelSerializer):
+    borrow = BorrowSerializer(read_only=True)
+
+    class Meta:
+        model = FinePayment
+        fields = [
+            "id",
+            "borrow",
+            "amount",
+            "payment_method",
+            "status",
+            "transaction_id",
         ]
