@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.conf import settings
 
+from utils.constants import PaymentMethodChoices, PaymentStatusChoices
 from utils.threads import get_current_user
 
 
@@ -48,6 +49,22 @@ class NameField(CommonInfo):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        abstract = True
+
+
+class CommonPaymentFields(CommonInfo):
+    amount = models.DecimalField(max_digits=8, decimal_places=2)
+    payment_method = models.CharField(
+        max_length=6, choices=PaymentMethodChoices.choices
+    )
+    transaction_id = models.CharField(max_length=50, blank=True, null=True)
+    status = models.CharField(
+        max_length=9,
+        choices=PaymentStatusChoices.choices,
+        default=PaymentStatusChoices.PENDING,
+    )
 
     class Meta:
         abstract = True
