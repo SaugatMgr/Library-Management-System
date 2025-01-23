@@ -1,11 +1,17 @@
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from apps.academic.models import LibrarySection, Shelf
-from utils.constants import BookStatusChoices, BorrowStatusChoices, ReserveStatusChoices
-from utils.models import CommonInfo, NameField
+from utils.constants import (
+    BookStatusChoices,
+    BorrowStatusChoices,
+    ReserveStatusChoices,
+)
+from utils.models import CommonInfo, CommonPaymentFields, NameField
 
 User = get_user_model()
 
@@ -47,7 +53,7 @@ class Book(CommonInfo):
         ordering = ["-created_on"]
 
     def __str__(self) -> str:
-        return f"{self.author} -- {self.title}"
+        return self.title
 
 
 class Borrow(CommonInfo):
@@ -63,6 +69,10 @@ class Borrow(CommonInfo):
         max_length=12,
         default=BorrowStatusChoices.NOT_RETURNED,
     )
+    overdue = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-borrowed_date"]
 
     def __str__(self) -> str:
         return f"{self.book} -- {self.borrower.get_full_name}"
@@ -110,6 +120,23 @@ class Notification(CommonInfo):
 
     def __str__(self) -> str:
         return f"Notification for {self.user} -- {self.timestamp}"
+
+
+class FinePayment(CommonPaymentFields):
+    borrow = models.ForeignKey(
+        Borrow,
+        on_delete=models.CASCADE,
+        verbose_name=_("Borrow"),
+        related_name="fine_payments",
+    )
+
+    def __str__(self):
+        return f"Fine Payment #{self.transaction_id}"
+
+    class Meta:
+        ordering = ["-created_on"]
+        verbose_name = _("Fine Payment")
+        verbose_name_plural = _("Fine Payments")
 
 
 class Rating(CommonInfo):
