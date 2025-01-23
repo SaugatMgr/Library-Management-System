@@ -57,6 +57,7 @@ class SemesterChoices(models.TextChoices):
 class PaymentMethodChoices(models.TextChoices):
     KHALTI = "khalti", "Khalti"
     ESEWA = "esewa", "eSewa"
+    CASH = "cash", "Cash"
 
 
 class PaymentStatusChoices(models.TextChoices):
