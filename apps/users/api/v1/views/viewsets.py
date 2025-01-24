@@ -13,11 +13,14 @@ from apps.users.api.v1.serializers.get import (
 from apps.users.api.v1.serializers.post import UserProfileCreateUpdateSerializer
 from apps.books.models import Notification
 from utils.pagination import CustomPageSizePagination
-from utils.permissions import AdminPermission, ProfileOwnerOrAdminPermission
+from utils.permissions import (
+    AdminPermission,
+    ProfileOwnerOrAdminPermission,
+    SelfOrAdminPermission,
+)
 
 
 class UserViewset(ModelViewSet):
-    permission_classes = [AdminPermission]
     serializer_action = {
         "list": UserListSerializer,
         "retrieve": UserDetailSerializer,
@@ -25,10 +28,25 @@ class UserViewset(ModelViewSet):
         "update": UserListSerializer,
         "get_notifications": UserNotificationSerializer,
     }
+    action_permissions = {
+        "create": [AdminPermission],
+        "list": [AdminPermission],
+        "retrieve": [SelfOrAdminPermission],
+        "update": [AdminPermission],
+        "destroy": [AdminPermission],
+    }
     pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
         return UserRepository.get_all()
+
+    def get_permissions(self):
+        return [
+            permission()
+            for permission in self.action_permissions.get(
+                self.action, [AdminPermission]
+            )
+        ]
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)
