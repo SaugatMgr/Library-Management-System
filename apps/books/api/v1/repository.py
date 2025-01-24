@@ -1,4 +1,5 @@
 from datetime import timedelta
+
 from django.utils import timezone
 
 from rest_framework.exceptions import NotAcceptable
@@ -12,7 +13,12 @@ from apps.books.helpers.error_messages import (
 from apps.books.models import Book, Borrow, Reserve, ReserveQueue
 from apps.books.tasks import notify_book_available
 
-from utils.constants import BookStatusChoices, BorrowStatusChoices, ReserveStatusChoices
+from apps.users.models import CustomUser
+from utils.constants import (
+    BookStatusChoices,
+    BorrowStatusChoices,
+    ReserveStatusChoices,
+)
 from utils.helpers import generate_error, get_instance_by_attr
 from utils.threads import get_current_user
 
@@ -116,7 +122,12 @@ class BookRepository:
 class BorrowRepository:
     @classmethod
     def get_all(cls):
-        return Borrow.objects.filter(borrower=get_current_user())
+        return Borrow.objects.filter()
+
+    @classmethod
+    def get_borrowed_books_by_user(cls, user_id):
+        user = get_instance_by_attr(CustomUser, "id", user_id)
+        return cls.get_all().filter(borrower=user)
 
     @classmethod
     def create(cls, data):
