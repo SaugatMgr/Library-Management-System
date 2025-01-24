@@ -151,8 +151,16 @@ class BorrowModelViewSet(ModelViewSet):
     serializer_class = BorrowSerializer
     pagination_class = CustomPageSizePagination
 
-    def get_queryset(self):
-        return BorrowRepository.get_all()
+    @action(detail=False, methods=["get"], url_path="user-borrow-list")
+    def user_borrow_list(self, request):
+        user_id = self.request.query_params.get("user")
+        user_borrows = BorrowRepository.get_borrowed_books_by_user(user_id)
+
+        if user_borrows.exists():
+            paginator = self.paginate_queryset(user_borrows)
+            paginated_borrows = self.get_serializer(paginator, many=True).data
+            return Response(self.get_paginated_response(paginated_borrows).data)
+        return Response({"message": "You have not borrowed books yet."})
 
 
 class ReserveModelViewSet(ModelViewSet):
