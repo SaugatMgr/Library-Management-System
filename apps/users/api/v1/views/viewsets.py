@@ -34,6 +34,7 @@ class UserViewset(ModelViewSet):
         "retrieve": [SelfOrAdminPermission],
         "update": [AdminPermission],
         "destroy": [AdminPermission],
+        "change_user_password": [AdminPermission],
     }
     pagination_class = CustomPageSizePagination
 
@@ -50,6 +51,12 @@ class UserViewset(ModelViewSet):
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)
+
+    @action(detail=True, methods=["post"], url_path="change-password")
+    def change_user_password(self, request, pk=None):
+        user = self.get_object()
+        UserRepository.change_user_password(user, request.data)
+        return Response({"message": "Password changed successfully."})
 
     @action(detail=True, methods=["get"], url_path="notifications")
     def get_notifications(self, request, pk=None):

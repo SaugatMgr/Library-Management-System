@@ -21,6 +21,11 @@ class UserRepository:
         else:
             return {"error": "OTP is either invalid or expired."}
 
+    @staticmethod
+    def change_user_password(user, data):
+        user.set_password(data["new_password"])
+        user.save()
+
 
 class UserProfileRepository:
     @classmethod
