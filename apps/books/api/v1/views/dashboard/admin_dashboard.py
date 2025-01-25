@@ -1,6 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
 
 from django.db.models import Count
 from django.utils import timezone
@@ -8,11 +7,12 @@ from django.utils import timezone
 from apps.academic.models import Staff, Student
 from apps.books.models import Borrow
 from utils.constants import BorrowStatusChoices
+from utils.permissions import AdminPermission
 
 
 class AdminDashboard(APIView):
     http_method_names = ["get"]
-    permission_classes = [IsAdminUser]
+    permission_classes = [AdminPermission]
 
     def get(self, request):
         total_students = Student.objects.count()
