@@ -35,6 +35,7 @@ class UserViewset(ModelViewSet):
         "update": [AdminPermission],
         "destroy": [AdminPermission],
         "change_user_password": [AdminPermission],
+        "get_notifications": [SelfOrAdminPermission],
     }
     pagination_class = CustomPageSizePagination
 
