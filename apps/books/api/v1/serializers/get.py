@@ -64,6 +64,7 @@ class BorrowSerializer(serializers.ModelSerializer):
             "due_date",
             "returned_date",
             "borrow_status",
+            "overdue",
         )
 
 
