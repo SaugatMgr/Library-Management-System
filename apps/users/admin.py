@@ -24,7 +24,7 @@ class CustomUserAdmin(admin.ModelAdmin):
     )
     search_fields = ("email", "first_name", "last_name")
     list_filter = ("is_active", "is_staff", "groups")
-    readonly_fields = ("get_full_name",)
+    readonly_fields = ("get_full_name", "password")
     filter_horizontal = ("groups",)
 
     def get_full_name(self, obj):
