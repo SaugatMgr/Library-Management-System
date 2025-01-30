@@ -28,6 +28,7 @@ class CustomUserGroup(models.Model):
         return self.name
 
     class Meta:
+        ordering = ["name"]
         verbose_name = _("group")
         verbose_name_plural = _("groups")
 
@@ -54,6 +55,9 @@ class CustomUser(AbstractUser):
     )
 
     objects = CustomUserManager()
+
+    class Meta:
+        ordering = ["email"]
 
     @property
     def get_full_name(self) -> str:
