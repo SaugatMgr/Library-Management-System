@@ -10,7 +10,11 @@ from apps.users.api.v1.serializers.get import (
     UserProfileDetailSerializer,
     UserProfileListSerializer,
 )
-from apps.users.api.v1.serializers.post import UserProfileCreateUpdateSerializer
+from apps.users.api.v1.serializers.post import (
+    UserCreateSerializer,
+    UserProfileCreateUpdateSerializer,
+    UserUpdateSerializer,
+)
 from apps.books.models import Notification
 from utils.pagination import CustomPageSizePagination
 from utils.permissions import (
@@ -24,8 +28,8 @@ class UserViewset(ModelViewSet):
     serializer_action = {
         "list": UserListSerializer,
         "retrieve": UserDetailSerializer,
-        "create": UserListSerializer,
-        "update": UserListSerializer,
+        "create": UserCreateSerializer,
+        "update": UserUpdateSerializer,
         "get_notifications": UserNotificationSerializer,
     }
     action_permissions = {
@@ -52,6 +56,11 @@ class UserViewset(ModelViewSet):
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        UserRepository.create_user(data)
+        return Response({"message": "User created successfully."})
 
     @action(detail=True, methods=["post"], url_path="change-password")
     def change_user_password(self, request, pk=None):
