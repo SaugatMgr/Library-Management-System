@@ -115,3 +115,26 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
             data["new_password"], data["confirm_password"], user, data["old_password"]
         )
         return data
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            "first_name",
+            "middle_name",
+            "last_name",
+            "email",
+            "password",
+        )
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            "first_name",
+            "middle_name",
+            "last_name",
+            "email",
+        )
