@@ -9,6 +9,10 @@ class UserRepository:
     def get_all(cls):
         return CustomUser.objects.filter()
 
+    @staticmethod
+    def create_user(data):
+        CustomUser.objects.create_user(**data)
+
     @classmethod
     def reset_password(cls, user, data):
         otp = data["otp"]
