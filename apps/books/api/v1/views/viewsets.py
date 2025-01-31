@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Q
 
 from rest_framework import serializers
 from rest_framework.decorators import action
@@ -69,11 +70,20 @@ class BookModelViewSet(ModelViewSet):
         "retrieve": [AllowAny],
         "update": [LibrarianOrAdminPermission],
         "destroy": [LibrarianOrAdminPermission],
+        "recommended_books": [AllowAny],
     }
     pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
-        return BookRepository.get_all()
+        query = self.request.query_params.get("query")
+        filtered_queryset = BookRepository.get_all().filter(
+            Q(title__icontains=query)
+            | Q(author__icontains=query)
+            | Q(genres__name__icontains=query)
+            | Q(isbn=query)
+            | Q(publisher__icontains=query)
+        ).distinct()
+        return filtered_queryset
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)
