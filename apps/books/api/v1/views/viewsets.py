@@ -76,14 +76,17 @@ class BookModelViewSet(ModelViewSet):
 
     def get_queryset(self):
         query = self.request.query_params.get("query")
-        filtered_queryset = BookRepository.get_all().filter(
-            Q(title__icontains=query)
-            | Q(author__icontains=query)
-            | Q(genres__name__icontains=query)
-            | Q(isbn=query)
-            | Q(publisher__icontains=query)
-        ).distinct()
-        return filtered_queryset
+        all_books = BookRepository.get_all()
+        if query:
+            filtered_queryset = all_books.filter(
+                Q(title__icontains=query)
+                | Q(author__icontains=query)
+                | Q(genres__name__icontains=query)
+                | Q(isbn=query)
+                | Q(publisher__icontains=query)
+            ).distinct()
+            return filtered_queryset
+        return all_books
 
     def get_serializer_class(self):
         return self.serializer_action.get(self.action)
