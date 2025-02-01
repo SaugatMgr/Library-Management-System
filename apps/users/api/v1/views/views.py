@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import NotAcceptable
 from django_celery_beat.models import PeriodicTask, CrontabSchedule
 
@@ -46,7 +46,7 @@ class UserRegisterView(APIView):
 
             email = user.email
             otp = OTP.generate_otp(user=user)
-            send_otp_to_email(email, otp)
+            send_otp_to_email.delay(email, otp)
             return Response(
                 {
                     "message": f"An OTP has been sent to {email}. Please verify your email."
@@ -69,12 +69,14 @@ class UserEmailVerificationView(APIView):
         if verify_otp(user, validated_data["otp"]):
             user.is_active = True
             user.save()
-            return Response({"message": "User verified successfully."})
+            return Response({"message": "Verification successful."})
         else:
             raise NotAcceptable({"error": "OTP is either invalid or expired."})
 
 
 class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         pwd_reset_req_serializer = PasswordResetRequestSerializer(data=request.data)
         pwd_reset_req_serializer.is_valid(raise_exception=True)
