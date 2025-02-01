@@ -8,7 +8,15 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("id", "name", "email", "groups")
+        fields = [
+            "id",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "name",
+            "email",
+            "groups",
+        ]
 
 
 class UserGroupSerializer(serializers.ModelSerializer):
@@ -23,7 +31,15 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("id", "name", "email", "groups")
+        fields = [
+            "id",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "name",
+            "email",
+            "groups",
+        ]
 
 
 class UserProfileListSerializer(serializers.ModelSerializer):
