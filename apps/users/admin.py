@@ -30,6 +30,11 @@ class CustomUserAdmin(admin.ModelAdmin):
     def get_full_name(self, obj):
         return obj.get_full_name
 
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ("get_full_name", "password")
+        return ("get_full_name",)
+
     get_full_name.short_description = "Full Name"
 
 
