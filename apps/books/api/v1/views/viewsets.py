@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.db.models import Q
+from django.http import HttpResponseRedirect
 
 from rest_framework import serializers
 from rest_framework.decorators import action
@@ -174,6 +175,32 @@ class BorrowModelViewSet(ModelViewSet):
             paginated_borrows = self.get_serializer(paginator, many=True).data
             return Response(self.get_paginated_response(paginated_borrows).data)
         return Response({"message": "You have not borrowed books yet."})
+
+    @action(detail=False, methods=["post"], url_path="payment/esewa/initiate")
+    def initiate_esewa_payment(self, request):
+        data = request.data
+        esewaFormData = BorrowRepository.generate_esewa_form_data(data)
+        return Response(esewaFormData)
+
+    @action(detail=True, methods=["get"], url_path="payment/esewa/verify")
+    def verify_esewa_payment(self, request, *args, **kwargs):
+        borrow_id = kwargs.get("pk")
+        encoded_data = request.GET.get("data")
+        BorrowRepository.pay_with_esewa(borrow_id, encoded_data)
+        return HttpResponseRedirect("http://localhost:3000/user/dashboard/")
+
+    @action(detail=True, methods=["post"], url_path="payment/khalti/initiate")
+    def initiate_khalti_payment(self, request, *args, **kwargs):
+        data = request.data
+        borrow_id = kwargs.get("pk")
+        return BorrowRepository.initiate_khalti_payment(request, data, borrow_id)
+
+    @action(detail=True, methods=["get"], url_path="payment/khalti/verify")
+    def verify_khalti_payment(self, request, *args, **kwargs):
+        data = request.GET.dict()
+        borrow_id = kwargs.get("pk")
+        BorrowRepository.pay_with_khalti(data, borrow_id)
+        return HttpResponseRedirect("http://localhost:3000/user/dashboard/")
 
 
 class ReserveModelViewSet(ModelViewSet):

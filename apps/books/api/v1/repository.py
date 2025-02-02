@@ -1,15 +1,25 @@
+import base64
+import json
+import requests
+
 from datetime import timedelta
 
+from django.db import transaction
+from django.urls import reverse
 from django.utils import timezone
+from django.conf import settings
 
+from rest_framework import serializers, status
 from rest_framework.exceptions import NotAcceptable
 from rest_framework.response import Response
 
+from apps.books.api.v1.serializers.general import FinePaymentSerializer
 from apps.books.helpers.error_messages import (
     ALREADY_BORROWED,
     ALREADY_RESERVED,
     OUT_OF_STOCK,
 )
+from apps.books.helpers.payment import generate_hmac_signature, generate_transaction_id
 from apps.books.models import Book, Borrow, Reserve, ReserveQueue
 from apps.books.tasks import notify_book_available
 
@@ -17,6 +27,8 @@ from apps.users.models import CustomUser
 from utils.constants import (
     BookStatusChoices,
     BorrowStatusChoices,
+    PaymentMethodChoices,
+    PaymentStatusChoices,
     ReserveStatusChoices,
 )
 from utils.helpers import generate_error, get_instance_by_attr
@@ -134,6 +146,159 @@ class BorrowRepository:
         due_date = timezone.now() + timedelta(days=int(data.pop("due_date")))
         data["due_date"] = due_date
         Borrow.objects.create(**data)
+
+    @staticmethod
+    def generate_esewa_form_data(data):
+        borrow_id = data.get("borrow_id")
+        product_code = settings.ESEWA_MERCHANT_ID
+        message = (
+            f"total_amount=110,transaction_uuid={borrow_id},product_code={product_code}"
+        )
+        hmac_signature = generate_hmac_signature(settings.ESEWA_SECRET, message)
+
+        return {
+            "amount": "100",
+            "tax_amount": "10",
+            "total_amount": "110",
+            "transaction_uuid": f"{borrow_id}",
+            "product_code": f"{product_code}",
+            "product_service_charge": "0",
+            "product_delivery_charge": "0",
+            "success_url": f"http://127.0.0.1:8000/api/v1/borrow/{borrow_id}/payment/esewa/verify",
+            "failure_url": f"http://localhost:5173/payment/esewa/{borrow_id}",
+            "signed_field_names": "total_amount,transaction_uuid,product_code",
+            "signature": f"{hmac_signature}",
+        }
+
+    @staticmethod
+    def calculate_total_fine(borrow):
+        days_passed = (timezone.now() - borrow.due_date).days
+        return days_passed * settings.FINE_PER_DAY
+
+    @classmethod
+    def pay_with_esewa(cls, id, data):
+        try:
+            get_response_decoded_data = base64.b64decode(data).decode("utf-8")
+            get_response_decoded_data = json.loads(get_response_decoded_data)
+
+            get_url = (
+                f"{settings.ESEWA_VERIFY_URL}"
+                f"?product_code={settings.ESEWA_MERCHANT_ID}"
+                f"&total_amount={get_response_decoded_data.get('total_amount')}"
+                f"&transaction_uuid={get_response_decoded_data.get('transaction_uuid')}"
+            )
+
+            with transaction.atomic():
+                response = requests.get(get_url)
+                response = response.json()
+
+                if response.get("status") == "COMPLETE" and response.get("ref_id"):
+                    borrow = get_instance_by_attr(Borrow, "id", id)
+
+                    payment_data = {
+                        "borrow": id,
+                        "amount": cls.calculate_total_fine(borrow),
+                        "payment_method": PaymentMethodChoices.ESEWA,
+                        "payment_status": PaymentStatusChoices.COMPLETED,
+                        "transaction_id": generate_transaction_id(),
+                    }
+                    payment_serializer = FinePaymentSerializer(data=payment_data)
+                    payment_serializer.is_valid(raise_exception=True)
+                    payment_serializer.save()
+
+                    borrow.overdue = False
+                    borrow.save()
+                else:
+                    raise serializers.ValidationError(
+                        generate_error(
+                            message="Payment not completed.",
+                            code="payment_not_completed",
+                        )
+                    )
+        except Exception:
+            raise serializers.ValidationError(
+                generate_error(
+                    message="Error occurred while processing payment.",
+                    code="payment_error",
+                )
+            )
+
+    @classmethod
+    def initiate_khalti_payment(cls, request, data, borrow_id):
+        data["return_url"] = request.build_absolute_uri(
+            reverse("borrow-verify-khalti-payment", kwargs={"pk": borrow_id}),
+        )
+        data["amount"] = cls.calculate_total_fine(
+            get_instance_by_attr(Borrow, "id", borrow_id)
+        )
+        data = json.dumps(data)
+        url = settings.KHALTI_INITIATE_URL
+        headers = {
+            "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
+            "Content-Type": "application/json",
+        }
+        try:
+            response = requests.post(url, data=data, headers=headers)
+            return Response(response.json(), status=response.status_code)
+        except requests.exceptions.RequestException as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @classmethod
+    def pay_with_khalti(cls, data, borrow_id):
+        if not (
+            "pidx" in data
+            or "transaction_id" in data
+            or "tidx" in data
+            or "amount" in data
+        ):
+            raise serializers.ValidationError(
+                generate_error(
+                    message="Missing required information.",
+                    code="missing_required_fields",
+                )
+            )
+        try:
+            with transaction.atomic():
+                verify_url = settings.KHALTI_VERIFY_URL
+                headers = {
+                    "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
+                    "Content-Type": "application/json",
+                }
+                response = requests.post(
+                    verify_url,
+                    json={"pidx": data.get("pidx")},
+                    headers=headers,
+                ).json()
+
+                if response.get("status") == "Completed" and response.get("pidx"):
+                    borrow = get_instance_by_attr(Borrow, "id", borrow_id)
+                    payment_data = {
+                        "borrow": borrow_id,
+                        "amount": cls.calculate_total_fine(borrow),
+                        "payment_method": PaymentMethodChoices.KHALTI,
+                        "status": PaymentStatusChoices.COMPLETED,
+                        "transaction_id": generate_transaction_id(),
+                    }
+                    payment_serializer = FinePaymentSerializer(data=payment_data)
+                    payment_serializer.is_valid(raise_exception=True)
+                    payment_serializer.save()
+
+                    borrow.overdue = False
+                    borrow.save()
+                else:
+                    raise serializers.ValidationError(
+                        generate_error(
+                            message="Payment not completed.",
+                            code="payment_not_completed",
+                        )
+                    )
+        except Exception as _:
+            raise serializers.ValidationError(
+                generate_error(
+                    message="Error occurred while processing payment.",
+                    code="payment_error",
+                )
+            )
 
 
 class ReserveRepository:
