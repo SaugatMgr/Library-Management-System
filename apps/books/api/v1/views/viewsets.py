@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from apps.books.api.v1.repository import (
     BookRepository,
@@ -163,7 +163,26 @@ class BookModelViewSet(ModelViewSet):
 class BorrowModelViewSet(ModelViewSet):
     queryset = Borrow.objects.all()
     serializer_class = BorrowSerializer
+    action_permissions = {
+        "create": [IsAuthenticated],
+        "list": [IsAuthenticated],
+        "retrieve": [IsAuthenticated],
+        "update": [LibrarianOrAdminPermission],
+        "destroy": [LibrarianOrAdminPermission],
+        "initiate_esewa_payment": [IsAuthenticated],
+        "verify_esewa_payment": [IsAuthenticated],
+        "initiate_khalti_payment": [IsAuthenticated],
+        "verify_khalti_payment": [IsAuthenticated],
+    }
     pagination_class = CustomPageSizePagination
+
+    def get_permissions(self):
+        return [
+            permission()
+            for permission in self.action_permissions.get(
+                self.action, [LibrarianOrAdminPermission]
+            )
+        ]
 
     @action(detail=False, methods=["get"], url_path="user-borrow-list")
     def user_borrow_list(self, request):
