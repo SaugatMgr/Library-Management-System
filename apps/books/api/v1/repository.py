@@ -194,12 +194,11 @@ class BorrowRepository:
 
                 if response.get("status") == "COMPLETE" and response.get("ref_id"):
                     borrow = get_instance_by_attr(Borrow, "id", id)
-
                     payment_data = {
                         "borrow": id,
                         "amount": cls.calculate_total_fine(borrow),
                         "payment_method": PaymentMethodChoices.ESEWA,
-                        "payment_status": PaymentStatusChoices.COMPLETED,
+                        "status": PaymentStatusChoices.COMPLETED,
                         "transaction_id": generate_transaction_id(),
                     }
                     payment_serializer = FinePaymentSerializer(data=payment_data)
@@ -207,6 +206,7 @@ class BorrowRepository:
                     payment_serializer.save()
 
                     borrow.overdue = False
+                    borrow.borrow_status = BorrowStatusChoices.RETURNED
                     borrow.save()
                 else:
                     raise serializers.ValidationError(
@@ -283,6 +283,7 @@ class BorrowRepository:
                     payment_serializer.is_valid(raise_exception=True)
                     payment_serializer.save()
 
+                    borrow.borrow_status = BorrowStatusChoices.RETURNED
                     borrow.overdue = False
                     borrow.save()
                 else:
