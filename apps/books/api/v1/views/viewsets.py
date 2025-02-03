@@ -169,6 +169,7 @@ class BorrowModelViewSet(ModelViewSet):
         "retrieve": [IsAuthenticated],
         "update": [LibrarianOrAdminPermission],
         "destroy": [LibrarianOrAdminPermission],
+        "user_borrow_list": [IsAuthenticated],
         "initiate_esewa_payment": [IsAuthenticated],
         "verify_esewa_payment": [IsAuthenticated],
         "initiate_khalti_payment": [IsAuthenticated],
