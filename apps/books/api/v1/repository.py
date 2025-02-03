@@ -206,7 +206,6 @@ class BorrowRepository:
                     payment_serializer.save()
 
                     borrow.overdue = False
-                    borrow.borrow_status = BorrowStatusChoices.RETURNED
                     borrow.save()
                 else:
                     raise serializers.ValidationError(
@@ -283,7 +282,6 @@ class BorrowRepository:
                     payment_serializer.is_valid(raise_exception=True)
                     payment_serializer.save()
 
-                    borrow.borrow_status = BorrowStatusChoices.RETURNED
                     borrow.overdue = False
                     borrow.save()
                 else:
