@@ -33,7 +33,6 @@ from utils.constants import (
     ReserveStatusChoices,
 )
 from utils.helpers import generate_error, get_instance_by_attr
-from utils.threads import get_current_user
 
 
 class BookRepository:
