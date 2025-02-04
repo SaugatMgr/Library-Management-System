@@ -17,6 +17,7 @@ from apps.books.api.v1.serializers.general import FinePaymentSerializer
 from apps.books.helpers.error_messages import (
     ALREADY_BORROWED,
     ALREADY_RESERVED,
+    AVAILABLE_FOR_BORROW,
     OUT_OF_STOCK,
 )
 from apps.books.helpers.payment import generate_hmac_signature, generate_transaction_id
@@ -104,20 +105,25 @@ class BookRepository:
             BorrowRepository.get_all()
             .filter(
                 book=book,
+                borrower=data["user"],
                 borrow_status=BorrowStatusChoices.NOT_RETURNED,
             )
             .exists()
         )
         is_reserved_by_current_user = (
             ReserveRepository.get_all()
-            .filter(book=book, reserve_status=ReserveStatusChoices.PENDING)
+            .filter(
+                book=book,
+                reserver=data["user"],
+                reserve_status=ReserveStatusChoices.PENDING,
+            )
             .exists()
         )
         quantity = book.quantity
         if quantity == 0 and not is_borrowed:
             raise NotAcceptable(OUT_OF_STOCK)
         if quantity > 0:
-            return Response({"message": "Book is available for borrowing."})
+            return NotAcceptable(AVAILABLE_FOR_BORROW)
         if is_borrowed_by_current_user:
             raise NotAcceptable(ALREADY_BORROWED)
         if is_reserved_by_current_user:
@@ -303,7 +309,7 @@ class BorrowRepository:
 class ReserveRepository:
     @classmethod
     def get_all(cls):
-        return Reserve.objects.filter(reserver=get_current_user())
+        return Reserve.objects.filter()
 
     @classmethod
     def create(cls, data):
