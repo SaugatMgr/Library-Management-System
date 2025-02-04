@@ -120,10 +120,8 @@ class BookRepository:
             .exists()
         )
         quantity = book.quantity
-        if quantity == 0 and not is_borrowed:
-            raise NotAcceptable(OUT_OF_STOCK)
         if quantity > 0:
-            return NotAcceptable(AVAILABLE_FOR_BORROW)
+            raise NotAcceptable(AVAILABLE_FOR_BORROW)
         if is_borrowed_by_current_user:
             raise NotAcceptable(ALREADY_BORROWED)
         if is_reserved_by_current_user:
