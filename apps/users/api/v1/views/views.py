@@ -90,8 +90,12 @@ class PasswordResetRequestView(APIView):
 
 
 class ResetPasswordView(APIView):
+    permission_classes = []
+
     def post(self, request, *args, **kwargs):
-        user = request.user
+        user = get_instance_by_attr(
+            CustomUser, "email", request.query_params.get("query")
+        )
         pwd_reset_serializer = PasswordResetSerializer(
             data=request.data, context={"user": user}
         )
