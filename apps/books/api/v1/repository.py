@@ -97,9 +97,6 @@ class BookRepository:
     @classmethod
     def reserve_book(cls, data):
         book = get_instance_by_attr(Book, "id", data["book_id"])
-        is_borrowed = Borrow.objects.filter(
-            book=book, borrow_status=BorrowStatusChoices.NOT_RETURNED
-        ).exists()
         is_borrowed_by_current_user = (
             BorrowRepository.get_all()
             .filter(
