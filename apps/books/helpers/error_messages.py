@@ -14,3 +14,9 @@ ALREADY_RESERVED = generate_error(
     message="You have already reserved this book.",
     code="already_reserved",
 )
+
+# Available For Borrow
+AVAILABLE_FOR_BORROW = generate_error(
+    message="This book is available for borrow.",
+    code="available_for_borrow",
+)
