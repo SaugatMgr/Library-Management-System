@@ -88,7 +88,7 @@ class PasswordResetSerializer(OTPSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ("new_password", "confirm_password")
+        fields = ("otp", "new_password", "confirm_password")
 
     def validate(self, attrs):
         user = self.context["user"]
