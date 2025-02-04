@@ -40,12 +40,12 @@ class BookRepository:
     def get_all(cls):
         return Book.objects.filter()
 
-    @classmethod
-    def borrow_book(cls, data):
+    @staticmethod
+    def borrow_book(data):
         book = get_instance_by_attr(Book, "id", data["book_id"])
         borrower = data["borrower"]
         if (
-            cls.get_all()
+            BorrowRepository.get_all()
             .filter(
                 book=book,
                 borrower=borrower,
