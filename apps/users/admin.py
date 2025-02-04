@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.hashers import make_password
 from .models import CustomUserGroup, CustomUser, UserProfile, OTP
 
 
@@ -36,6 +37,12 @@ class CustomUserAdmin(admin.ModelAdmin):
         return ("get_full_name",)
 
     get_full_name.short_description = "Full Name"
+
+    def save_model(self, request, obj, form, change):
+        """Hash the password before saving if it's changed."""
+        if not change or "password" in form.changed_data:
+            obj.password = make_password(obj.password)
+        super().save_model(request, obj, form, change)
 
 
 class UserProfileAdmin(admin.ModelAdmin):
