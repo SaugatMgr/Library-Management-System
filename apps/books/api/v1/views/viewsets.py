@@ -71,6 +71,9 @@ class BookModelViewSet(ModelViewSet):
         "retrieve": [AllowAny],
         "update": [LibrarianOrAdminPermission],
         "destroy": [LibrarianOrAdminPermission],
+        "borrow_book": [IsAuthenticated],
+        "reserve_book": [IsAuthenticated],
+        "return_book": [IsAuthenticated],
         "recommended_books": [AllowAny],
     }
     pagination_class = CustomPageSizePagination
