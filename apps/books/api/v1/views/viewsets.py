@@ -26,6 +26,7 @@ from apps.books.api.v1.serializers.get import (
 from apps.books.api.v1.serializers.post import (
     BookCreateUpdateSerializer,
     FinePaymentCreateSerializer,
+    FinePaymentUpdateSerializer,
     NotificationUpdateSerializer,
     UpdateReserveStatusSerializer,
 )
@@ -297,7 +298,7 @@ class FinePaymentModelViewSet(ModelViewSet):
         "list": FinePaymentSerializer,
         "retrieve": FinePaymentDetailSerializer,
         "create": FinePaymentCreateSerializer,
-        "update": FinePaymentSerializer,
+        "update": FinePaymentUpdateSerializer,
     }
     action_permissions = {
         "list": [AllowAny],
@@ -342,3 +343,13 @@ class FinePaymentModelViewSet(ModelViewSet):
             return Response(
                 {"message": "Fine payment created successfully."}, status=201
             )
+
+    def update(self, request, *args, **kwargs):
+        with transaction.atomic():
+            data = request.data
+            fine_payment_serializer = self.get_serializer(
+                instance=self.get_object(), data=data, partial=True
+            )
+            fine_payment_serializer.is_valid(raise_exception=True)
+            fine_payment_serializer.save()
+            return Response({"message": "Fine payment updated successfully."})
