@@ -46,7 +46,7 @@ class UserRegisterView(APIView):
 
             email = user.email
             otp = OTP.generate_otp(user=user)
-            send_otp_to_email.delay(email, otp)
+            send_otp_to_email(email, otp)
             return Response(
                 {
                     "message": f"An OTP has been sent to {email}. Please verify your email."
