@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.books.models import Book, FinePayment, Notification, Reserve
+from apps.books.models import Book, Borrow, FinePayment, Notification, Reserve
 from apps.users.models import CustomUser
 from utils.constants import ReserveStatusChoices
 
@@ -45,15 +45,26 @@ class NotificationUpdateSerializer(serializers.ModelSerializer):
 
 
 class FinePaymentCreateSerializer(serializers.ModelSerializer):
-    borrow = serializers.PrimaryKeyRelatedField(queryset=Reserve.objects.all())
+    borrow = serializers.PrimaryKeyRelatedField(queryset=Borrow.objects.all())
 
     class Meta:
         model = FinePayment
         fields = [
-            "id",
             "borrow",
             "amount",
             "payment_method",
             "status",
             "transaction_id",
+        ]
+
+
+class FinePaymentUpdateSerializer(serializers.ModelSerializer):
+    borrow = serializers.PrimaryKeyRelatedField(queryset=Borrow.objects.all())
+
+    class Meta:
+        model = FinePayment
+        fields = [
+            "borrow",
+            "amount",
+            "payment_method",
         ]
