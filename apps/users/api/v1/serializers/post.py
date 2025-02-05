@@ -14,6 +14,7 @@ from apps.users.api.v1.helpers import (
 
 
 from apps.users.models import CustomUser, UserProfile
+from utils.constants import UserGroupChoices
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -137,4 +138,21 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "middle_name",
             "last_name",
             "email",
+        )
+
+
+class UserRoleSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all(), required=True
+    )
+    role = serializers.ChoiceField(
+        choices=UserGroupChoices.choices,
+        required=True,
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            "user",
+            "role",
         )
