@@ -17,8 +17,9 @@ class ExportDataView(APIView):
         serializer = ExportDataSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        count = serializer.validated_data.get("count")
-        file_format = serializer.validated_data["format"]
+        validated_data = serializer.validated_data
+        books_id_list = validated_data["books_id_list"]
+        file_format = validated_data["format"]
         fields = [
             "title",
             "author",
@@ -32,7 +33,8 @@ class ExportDataView(APIView):
             "isbn",
             "availability_status",
         ]
-        queryset = Book.objects.all()[:count] if count else Book.objects.all()
+        book_ids = [book.id for book in books_id_list]
+        queryset = Book.objects.filter(id__in=book_ids)
         data = queryset.values(*fields)
 
         df = pd.DataFrame(data)
