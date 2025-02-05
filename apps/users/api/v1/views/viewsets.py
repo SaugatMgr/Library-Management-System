@@ -2,6 +2,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from django.db import transaction
+
 from apps.books.api.v1.serializers.get import UserNotificationSerializer
 from apps.users.api.v1.repository import UserProfileRepository, UserRepository
 from apps.users.api.v1.serializers.get import (
@@ -40,6 +42,7 @@ class UserViewset(ModelViewSet):
         "destroy": [AdminPermission],
         "change_user_password": [AdminPermission],
         "get_notifications": [SelfOrAdminPermission],
+        "set_user_role": [AdminPermission],
     }
     pagination_class = CustomPageSizePagination
 
@@ -61,6 +64,16 @@ class UserViewset(ModelViewSet):
         data = request.data
         UserRepository.create_user(data)
         return Response({"message": "User created successfully."})
+
+    @action(detail=True, methods=["post"], url_path="set-user-role")
+    def set_user_role(self, request, pk=None):
+        with transaction.atomic():
+            data = {
+                "user": pk,
+                "role": request.data["role"],
+            }
+            UserRepository.set_user_role(data)
+            return Response({"message": "User role updated successfully."})
 
     @action(detail=True, methods=["post"], url_path="change-password")
     def change_user_password(self, request, pk=None):
