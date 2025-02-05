@@ -10,10 +10,20 @@ from django.http import HttpResponse
 
 from apps.books.api.v1.serializers.get import ExportDataSerializer
 from apps.books.models import Book
+from utils.helpers import generate_error
 
 
 class ExportDataView(APIView):
     def post(self, request):
+        data = request.data
+        if data.get("books_id_list") == []:
+            return Response(
+                generate_error(
+                    message="Please select at least one book.",
+                    code="books_id_list_required",
+                ),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer = ExportDataSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
