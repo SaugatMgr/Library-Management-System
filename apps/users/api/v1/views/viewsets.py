@@ -65,14 +65,10 @@ class UserViewset(ModelViewSet):
         UserRepository.create_user(data)
         return Response({"message": "User created successfully."})
 
-    @action(detail=True, methods=["post"], url_path="set-user-role")
+    @action(detail=False, methods=["post"], url_path="set-user-role")
     def set_user_role(self, request, pk=None):
         with transaction.atomic():
-            data = {
-                "user": pk,
-                "role": request.data["role"],
-            }
-            UserRepository.set_user_role(data)
+            UserRepository.set_user_role(request.data)
             return Response({"message": "User role updated successfully."})
 
     @action(detail=True, methods=["post"], url_path="change-password")
