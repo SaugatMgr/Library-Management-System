@@ -3,8 +3,15 @@ from rest_framework import serializers
 from apps.users.models import CustomUser, CustomUserGroup, UserProfile
 
 
+class UserGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUserGroup
+        fields = ("id", "name")
+
+
 class UserListSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source="get_full_name")
+    groups = UserGroupSerializer(many=True)
 
     class Meta:
         model = CustomUser
@@ -17,12 +24,6 @@ class UserListSerializer(serializers.ModelSerializer):
             "email",
             "groups",
         ]
-
-
-class UserGroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUserGroup
-        fields = ("id", "name")
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
