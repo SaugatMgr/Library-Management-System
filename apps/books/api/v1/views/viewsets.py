@@ -211,7 +211,7 @@ class BorrowModelViewSet(ModelViewSet):
         borrow_id = kwargs.get("pk")
         encoded_data = request.GET.get("data")
         BorrowRepository.pay_with_esewa(borrow_id, encoded_data)
-        return HttpResponseRedirect("http://localhost:3000/user/dashboard/")
+        return HttpResponseRedirect("http://localhost:3000/user/borrow-history/")
 
     @action(detail=True, methods=["post"], url_path="payment/khalti/initiate")
     def initiate_khalti_payment(self, request, *args, **kwargs):
@@ -224,7 +224,7 @@ class BorrowModelViewSet(ModelViewSet):
         data = request.GET.dict()
         borrow_id = kwargs.get("pk")
         BorrowRepository.pay_with_khalti(data, borrow_id)
-        return HttpResponseRedirect("http://localhost:3000/user/dashboard/")
+        return HttpResponseRedirect("http://localhost:3000/user/borrow-history/")
 
 
 class ReserveModelViewSet(ModelViewSet):
