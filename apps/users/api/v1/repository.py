@@ -1,6 +1,9 @@
 from apps.users.api.v1.helpers import generate_lib_card_no, verify_otp
-from apps.users.api.v1.serializers.post import UserProfileCreateUpdateSerializer
-from apps.users.models import CustomUser, UserProfile
+from apps.users.api.v1.serializers.post import (
+    UserProfileCreateUpdateSerializer,
+    UserRoleSerializer,
+)
+from apps.users.models import CustomUser, CustomUserGroup, UserProfile
 from utils.helpers import to_internal_value
 
 
@@ -12,6 +15,19 @@ class UserRepository:
     @staticmethod
     def create_user(data):
         CustomUser.objects.create_user(**data)
+
+    @staticmethod
+    def set_user_role(data):
+        user_role_serializer = UserRoleSerializer(data=data)
+        user_role_serializer.is_valid(raise_exception=True)
+        validated_data = user_role_serializer.validated_data
+
+        user = validated_data["user"]
+        user_group, _ = CustomUserGroup.objects.get_or_create(
+            name=validated_data["role"]
+        )
+
+        user.groups.set([user_group])
 
     @classmethod
     def reset_password(cls, user, data):
