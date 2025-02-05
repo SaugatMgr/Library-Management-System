@@ -115,7 +115,10 @@ class RatingSerializer(serializers.ModelSerializer):
 
 
 class ExportDataSerializer(serializers.Serializer):
-    count = serializers.IntegerField(required=False)
+    books_id_list = serializers.ListField(
+        child=serializers.PrimaryKeyRelatedField(queryset=Book.objects.all()),
+        required=True,
+    )
     format = serializers.ChoiceField(choices=["csv", "excel"], required=True)
 
 
