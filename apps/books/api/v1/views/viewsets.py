@@ -1,3 +1,5 @@
+import json
+
 from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponseRedirect
@@ -106,9 +108,15 @@ class BookModelViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data
+        genres_list = json.loads(data["genres"])
+        data.pop("genres")
+
         book_serializer = self.get_serializer(data=data)
         book_serializer.is_valid(raise_exception=True)
-        book_serializer.save()
+        book = book_serializer.save()
+
+        genres = Genre.objects.filter(id__in=genres_list)
+        book.genres.set(genres)
         return Response({"message": "Book created successfully"}, status=201)
 
     def update(self, request, *args, **kwargs):
