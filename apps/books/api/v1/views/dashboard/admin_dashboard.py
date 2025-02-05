@@ -8,7 +8,9 @@ from django.utils import timezone
 from apps.academic.models import Staff, Student
 from apps.books.api.v1.serializers.get import BookListDetailSerializer
 from apps.books.models import Book, Borrow
+from apps.users.models import CustomUser
 from utils.constants import BorrowStatusChoices
+from utils.helpers import get_instance_by_attr
 from utils.pagination import CustomPageSizePagination
 from utils.permissions import LibrarianOrAdminPermission
 
@@ -43,6 +45,21 @@ class OverDueBooks(ListAPIView):
     pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
+        query = self.request.query_params
+        print(query)
+        if query:
+            return Book.objects.filter(
+                Exists(
+                    Borrow.objects.filter(
+                        book=OuterRef("id"),
+                        borrow_status=BorrowStatusChoices.NOT_RETURNED,
+                        due_date__lt=timezone.now(),
+                        borrower=get_instance_by_attr(
+                            CustomUser, "id", query.get("user")
+                        ),
+                    )
+                )
+            )
         return Book.objects.filter(
             Exists(
                 Borrow.objects.filter(
@@ -60,12 +77,26 @@ class MostBorrowedBooks(ListAPIView):
     pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
-        queryset = (
+        query = self.request.query_params
+        print(query)
+        if query:
+            return (
+                Book.objects.annotate(borrow_count=Count("borrow"))
+                .filter(
+                    borrow_count__gt=0,
+                    borrow__borrower=get_instance_by_attr(
+                        CustomUser, "id", query.get("user")
+                    ),
+                )
+                .order_by("-borrow_count")
+            )
+        return (
             Book.objects.annotate(borrow_count=Count("borrow"))
-            .filter(borrow_count__gt=0)
+            .filter(
+                borrow_count__gt=0,
+            )
             .order_by("-borrow_count")
         )
-        return queryset
 
 
 class PendingBooks(ListAPIView):
@@ -74,6 +105,20 @@ class PendingBooks(ListAPIView):
     pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
+        query = self.request.query_params
+        print(query)
+        if query:
+            return Book.objects.filter(
+                Exists(
+                    Borrow.objects.filter(
+                        book=OuterRef("id"),
+                        borrow_status=BorrowStatusChoices.NOT_RETURNED,
+                        borrower=get_instance_by_attr(
+                            CustomUser, "id", query.get("user")
+                        ),
+                    )
+                )
+            )
         return Book.objects.filter(
             Exists(
                 Borrow.objects.filter(
