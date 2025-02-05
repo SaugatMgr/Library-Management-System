@@ -41,7 +41,7 @@ class AdminDashboard(APIView):
 
 class OverDueBooks(ListAPIView):
     serializer_class = BookListDetailSerializer
-    permission_classes = [LibrarianOrAdminPermission]
+    permission_classes = []
     pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
@@ -73,7 +73,7 @@ class OverDueBooks(ListAPIView):
 
 class MostBorrowedBooks(ListAPIView):
     serializer_class = BookListDetailSerializer
-    permission_classes = [LibrarianOrAdminPermission]
+    permission_classes = []
     pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
@@ -101,7 +101,7 @@ class MostBorrowedBooks(ListAPIView):
 
 class PendingBooks(ListAPIView):
     serializer_class = BookListDetailSerializer
-    permission_classes = [LibrarianOrAdminPermission]
+    permission_classes = []
     pagination_class = CustomPageSizePagination
 
     def get_queryset(self):
